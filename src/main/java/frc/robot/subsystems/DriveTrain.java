@@ -13,13 +13,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 
 public class DriveTrain extends SubsystemBase{
-    private final WPI_TalonFX leftLeader = new WPI_TalonFX(3);
-    private final WPI_TalonFX leftFollower = new WPI_TalonFX(4);
-    private final WPI_TalonFX leftFollower2 = new WPI_TalonFX(4);
+    private final WPI_TalonFX leftLeader = new WPI_TalonFX(1);
+    private final WPI_TalonFX leftFollower = new WPI_TalonFX(2);
+    private final WPI_TalonFX leftFollower2 = new WPI_TalonFX(3);
     //------------------------------------------------------------------------
-    private final WPI_TalonFX rightLeader = new WPI_TalonFX(1);
-    private final WPI_TalonFX rightFollower = new WPI_TalonFX(2);
-    private final WPI_TalonFX rightFollower2 = new WPI_TalonFX(2);
+    private final WPI_TalonFX rightLeader = new WPI_TalonFX(4);
+    private final WPI_TalonFX rightFollower = new WPI_TalonFX(5);
+    private final WPI_TalonFX rightFollower2 = new WPI_TalonFX(6);
     private final MotorControllerGroup leftGroup = new MotorControllerGroup(leftLeader,leftFollower,leftFollower2);
     private final MotorControllerGroup rightGroup = new MotorControllerGroup(rightLeader,rightFollower,rightFollower2);
 
