@@ -6,9 +6,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Commands.SeekingCommand;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.LemonLight;
 
 
 /**
@@ -19,7 +23,10 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer
 {
-    // The robot's subsystems and commands are defined here...
+    private final Joystick joystick = new Joystick(0);
+    private final DriveTrain TrainDrive = new DriveTrain();
+    private final LemonLight LemonZest = new LemonLight();
+    private final SeekingCommand Seek = new SeekingCommand(TrainDrive);
     
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -38,8 +45,8 @@ public class RobotContainer
      */
     private void configureButtonBindings()
     {
-        // Add button to command mappings here.
-        // See https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html
+        JoystickButton seekButton = new JoystickButton(joystick, 5);
+        seekButton.whileTrue(Seek);
     }
     
     
@@ -51,6 +58,6 @@ public class RobotContainer
     public Command getAutonomousCommand()
     {
         // An ExampleCommand will run in autonomous
-        return null;
+        return new SeekingCommand(TrainDrive);
     }
 }

@@ -7,9 +7,9 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 
 public class DriveTrain extends SubsystemBase{
@@ -24,15 +24,14 @@ public class DriveTrain extends SubsystemBase{
     private final MotorControllerGroup rightGroup = new MotorControllerGroup(rightLeader,rightFollower,rightFollower2);
 
 
-    public void setLeftMotors(double speed){
-        leftGroup.set(speed);
-    }
-    public void setRightMotors(double speed){
-        rightGroup.set(speed);
-    }
+    public void setLeftMotors(double speed){leftGroup.set(speed);}
+    public void setRightMotors(double speed){rightGroup.set(speed);}
     public DriveTrain(){
         leftFollower.set(ControlMode.Follower, leftLeader.getDeviceID());
         rightFollower.set(ControlMode.Follower, rightLeader.getDeviceID());
+        leftFollower2.set(ControlMode.Follower, leftLeader.getDeviceID());
+        rightFollower2.set(ControlMode.Follower, rightLeader.getDeviceID());
+
         leftLeader.setInverted(true);
         leftFollower.setInverted(true);
         leftFollower2.setInverted(true);
@@ -42,9 +41,9 @@ public class DriveTrain extends SubsystemBase{
         rightFollower2.setInverted(false);
         //-----------------------------------
         leftLeader.setNeutralMode(NeutralMode.Brake);
-        rightLeader.setNeutralMode(NeutralMode.Brake);
         leftFollower.setNeutralMode(NeutralMode.Brake);
         leftFollower2.setNeutralMode(NeutralMode.Brake);
+        rightLeader.setNeutralMode(NeutralMode.Brake);
         rightFollower.setNeutralMode(NeutralMode.Brake);
         rightFollower2.setNeutralMode(NeutralMode.Brake);
     }
