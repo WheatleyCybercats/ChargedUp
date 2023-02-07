@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Commands.BalancingCommand;
 import frc.robot.Commands.SeekingCommand;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
+import frc.robot.subsystems.NavX;
 
 
 /**
@@ -29,7 +31,10 @@ public class Robot extends TimedRobot
     private final Joystick joystick = new Joystick(0);
     private final DriveTrain DriveTrain = new DriveTrain();
     private LemonLight lemonlight = new LemonLight();
-    private SeekingCommand sc = new SeekingCommand(DriveTrain);
+    private NavX navX = new NavX();
+    private SeekingCommand SC = new SeekingCommand(DriveTrain, lemonlight);
+    private BalancingCommand balance = new BalancingCommand(DriveTrain, navX);
+
     
     
     /**
@@ -76,7 +81,7 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-        /*
+
         autonomousCommand = robotContainer.getAutonomousCommand();
         
         // schedule the autonomous command (example)
@@ -85,14 +90,16 @@ public class Robot extends TimedRobot
             autonomousCommand.schedule();
         }
 
-         */
+        Constants.balanceTuner = navX.getRoll();
+
+
     }
     
     
     /** This method is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-       sc.execute();
+        //SC.execute();
     }
 
     @Override
@@ -106,30 +113,29 @@ public class Robot extends TimedRobot
         {
             autonomousCommand.cancel();
         }
-        //ColorSensorCommand.execute();
+        Constants.balanceTuner = navX.getRoll();
     }
     
     
     /** This method is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-
-        lemonlight.readValues();
-
+        //SeekingCommand.calculateDistance();
+        balance.execute();
         double speed = joystick.getRawAxis(1);
         if (speed < 0.08 && speed > -0.08)
             speed = 0;
 
         double turn = joystick.getRawAxis(4) * 0.45;
-        if (turn > -0.11 && turn < 0.11)
+        if (turn > -0.09 && turn < 0.09)
             turn = 0;
 
-        double left = speed - turn;
-        double right = speed + turn;
+        double left = speed + turn;
+        double right = speed - turn;
 
 
-        DriveTrain.setRightMotors(right);
-        DriveTrain.setLeftMotors(left);
+        DriveTrain.setRightMotors(-right);
+        DriveTrain.setLeftMotors(-left);
     }
     
     

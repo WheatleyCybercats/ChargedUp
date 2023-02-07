@@ -1,9 +1,10 @@
 package frc.robot.subsystems;
 
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.*;
 
 public class LemonLight extends SubsystemBase {
 
@@ -55,15 +56,7 @@ public class LemonLight extends SubsystemBase {
         double y = ty.getDouble(0.0);
         double area = ta.getDouble(0.0);
         double v = tv.getDouble(0.0);
-        double[] LemonValues = new double[]{x, y, area, v};
-        smartDashboard(LemonValues);
-        return LemonValues;
-    }
-    private void smartDashboard(double[] values){
-        SmartDashboard.putNumber("LemonlightX", values[0]);
-        SmartDashboard.putNumber("LemonlightY", values[1]);
-        SmartDashboard.putNumber("LemonlightArea", values[2]);
-        SmartDashboard.putNumber("LemonlightV", values[3]);
+        return new double[]{x, y, area, v};
     }
 }
 

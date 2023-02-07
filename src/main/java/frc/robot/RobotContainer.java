@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Commands.BalancingCommand;
 import frc.robot.Commands.SeekingCommand;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
+import frc.robot.subsystems.NavX;
 
 
 /**
@@ -25,8 +27,9 @@ public class RobotContainer
 {
     private final Joystick joystick = new Joystick(0);
     private final DriveTrain TrainDrive = new DriveTrain();
-    private final LemonLight LemonZest = new LemonLight();
-    private final SeekingCommand Seek = new SeekingCommand(TrainDrive);
+    private final NavX xNav = new NavX();
+    private final SeekingCommand SC = new SeekingCommand(TrainDrive, new LemonLight());
+    private final BalancingCommand BC = new BalancingCommand(TrainDrive, xNav);
     
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -45,11 +48,13 @@ public class RobotContainer
      */
     private void configureButtonBindings()
     {
-        JoystickButton seekButton = new JoystickButton(joystick, 5);
-        seekButton.whileTrue(Seek);
+
+        JoystickButton seekButton = new JoystickButton(joystick, 1);
+        seekButton.whileTrue(SC);
+        JoystickButton balanceButton = new JoystickButton(joystick, 2);
+        balanceButton.whileTrue(BC);
     }
-    
-    
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -58,6 +63,6 @@ public class RobotContainer
     public Command getAutonomousCommand()
     {
         // An ExampleCommand will run in autonomous
-        return new SeekingCommand(TrainDrive);
+        return new SeekingCommand(TrainDrive, new LemonLight());
     }
 }
