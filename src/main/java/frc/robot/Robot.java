@@ -14,7 +14,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Commands.seekingCommand;
+import frc.robot.commands.Autos.driveBoiCommand;
+import frc.robot.commands.seekingCommand;
 import frc.robot.subsystems.*;
 
 import java.nio.file.Path;
@@ -44,7 +45,7 @@ public class Robot extends TimedRobot
     private Elevator elevator = Elevator.getInstance();
     private PathPlannerTrajectory[] PT = new PathPlannerTrajectory[20];
     private int pathIndex = 0;
-    private PathPlannerTrajectory aton = PathPlanner.loadPath("aton", new PathConstraints(3, 2));
+    private driveBoiCommand DBC = new driveBoiCommand(new DriveTrain());
 
 
 
@@ -58,7 +59,6 @@ public class Robot extends TimedRobot
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
-        PT[0] = aton;
     }
 
 
@@ -94,7 +94,7 @@ public class Robot extends TimedRobot
     public void autonomousInit()
     {
 
-        /*autonomousCommand = robotContainer.getAutonomousCommand();
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null)
@@ -104,8 +104,6 @@ public class Robot extends TimedRobot
 
         Constants.balanceTuner = navX.getRoll();
 
-         */
-
 
     }
 
@@ -113,10 +111,6 @@ public class Robot extends TimedRobot
     /** This method is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-
-        DriveTrain.setLeftMotors(0.31);
-        DriveTrain.setRightMotors(0.3);
-
     }
 
     @Override
@@ -154,8 +148,7 @@ public class Robot extends TimedRobot
 
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
-        DriveTrain.setLeftMotors(left);
-        DriveTrain.setRightMotors(right);
+        DriveTrain.arcadeDrive(speed, turn);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];

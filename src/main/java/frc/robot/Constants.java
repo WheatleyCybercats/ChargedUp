@@ -19,6 +19,10 @@ import frc.robot.subsystems.Elevator;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static final String Auto = "aton";
+
+
     public static Arm arm = Arm.getInstance();
     public static Elevator elev = Elevator.getInstance();
 
@@ -47,5 +51,19 @@ public final class Constants {
     public static int heightOfTarget = 44;
     public static double angleOfLL = 34.3;
     public static double balanceTuner = 0;
+    public static double Ks = 0.052878;
+    public static double Kv = 2.3363;
+    public static double Ka = 0.31489;
+    public static double KpV = 1.6513;
+    public static double KdV = 0;
+    public static double KpP = 90.57;
+    public static double KdP = 6.7312;
+    public static double kMaxSpeedMetersPerSecond = 2.85;
+    public static double kMaxAccelerationMetersPerSecondSquared = 40;
+    public static final double kTrackwidthMeters = 0.635;
+    public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+    public static double kEncoderDistancePerPulse = 0.00002314;
+    public static final double kRamseteB = 2;
+    public static final double kRamseteZeta = 0.7;
 
 }
