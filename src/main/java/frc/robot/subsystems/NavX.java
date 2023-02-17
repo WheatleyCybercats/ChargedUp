@@ -49,5 +49,9 @@ public class NavX extends SubsystemBase {
         return ahrs.getRoll();
     }
 
+    public double getYaw(){
+        return ahrs.getYaw();
+    }
+
 }
 
