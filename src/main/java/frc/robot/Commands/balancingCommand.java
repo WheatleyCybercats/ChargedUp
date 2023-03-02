@@ -33,11 +33,11 @@ public class balancingCommand extends CommandBase {
         SmartDashboard.putNumber("Roll", roll);
         SmartDashboard.putNumber("BalanceTuner", balanceTuner);
         if (roll > 0.5){
-            driveTrain.setRightMotors(-Math.pow(roll, 0.25)*Navmultiplier);
-            driveTrain.setLeftMotors(-Math.pow(roll, 0.25)*Navmultiplier);
+            driveTrain.setRightMotors(-Math.pow(roll, 0.5)*Navmultiplier);
+            driveTrain.setLeftMotors(-Math.pow(roll, 0.5)*Navmultiplier);
         } else if (roll < - 0.5){
-            driveTrain.setRightMotors(Math.pow(Math.abs(roll), 0.25)*Navmultiplier);
-            driveTrain.setLeftMotors(Math.pow(Math.abs(roll), 0.25)*Navmultiplier);
+            driveTrain.setRightMotors(Math.pow(Math.abs(roll), 0.5)*Navmultiplier);
+            driveTrain.setLeftMotors(Math.pow(Math.abs(roll), 0.5)*Navmultiplier);
         }
     }
 
