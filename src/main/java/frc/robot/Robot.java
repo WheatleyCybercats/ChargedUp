@@ -8,6 +8,11 @@ package frc.robot;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.revrobotics.CANSparkMax;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -16,6 +21,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Commands.seekingCommand;
 import frc.robot.subsystems.*;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import java.nio.file.Path;
 
@@ -42,10 +51,7 @@ public class Robot extends TimedRobot
     private seekingCommand SC = new seekingCommand(DriveTrain, lemonlight);
     private Arm arm = Arm.getInstance();
     private Elevator elevator = Elevator.getInstance();
-    private PathPlannerTrajectory[] PT = new PathPlannerTrajectory[20];
-    private int pathIndex = 0;
-    private PathPlannerTrajectory aton = PathPlanner.loadPath("aton", new PathConstraints(3, 2));
-
+    Thread m_visionThread;
 
 
     /**
@@ -53,14 +59,53 @@ public class Robot extends TimedRobot
      * initialization code.
      */
     @Override
-    public void robotInit()
-    {
+    public void robotInit() {
+
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
-        robotContainer = new RobotContainer();
-        PT[0] = aton;
-    }
 
+        robotContainer = new RobotContainer();
+
+        m_visionThread =
+                new Thread(
+                        () -> {
+                            // Get the UsbCamera from CameraServer
+                            UsbCamera camera = CameraServer.startAutomaticCapture();
+                            // Set the resolution
+                            camera.setResolution(640, 480);
+
+                            // Get a CvSink. This will capture Mats from the camera
+                            CvSink cvSink = CameraServer.getVideo();
+                            // Set up a CvSource. This will send images back to the Dashboard
+                            CvSource outputStream = CameraServer.putVideo("Rectangle", 320, 240);
+
+                            // Mats are very memory expensive. Let's reuse this Mat.
+                            Mat mat = new Mat();
+
+                            // This cannot be 'true'. The program will never exit if it is. This
+                            // lets the robot stop this thread when restarting robot code or
+                            // deploying.
+                            while (!Thread.interrupted()) {
+                                // Tell the CvSink to grab a frame from the camera and put it
+                                // in the source mat.  If there is an error notify the output.
+                                if (cvSink.grabFrame(mat) == 0) {
+                                    // Send the output the error.
+                                    outputStream.notifyError(cvSink.getError());
+                                    // skip the rest of the current iteration
+                                    continue;
+                                }
+                                // Put a rectangle on the image
+                                //Imgproc.rectangle(
+                                        //mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
+                                // Give the output stream a new image to display
+                                outputStream.putFrame(mat);
+                            }
+                        });
+        m_visionThread.setDaemon(true);
+        m_visionThread.start();
+
+
+    }
 
     /**
      * This method is called every robot packet, no matter the mode. Use this for items like
@@ -70,13 +115,19 @@ public class Robot extends TimedRobot
      * SmartDashboard integrated updating.
      */
     @Override
-    public void robotPeriodic()
-    {
-        // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-        // commands, running already-scheduled commands, removing finished or interrupted commands,
-        // and running subsystem periodic() methods.  This must be called from the robot's periodic
-        // block in order for anything in the Command-based framework to work.
+    public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+        /*
+       // double armEncoderValue = Constants.armEncoderValue;
+        double elevEncoderValue = Constants.elevEncoderValue;
+        if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
+            elevator.setElevatorMotors(0);
+        }
+
+         */
+
+        arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        //SmartDashboard.putNumber("BotPose")
     }
 
 
@@ -93,20 +144,16 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-
-        /*autonomousCommand = robotContainer.getAutonomousCommand();
+/*
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null)
         {
             autonomousCommand.schedule();
         }
-
+*/
         Constants.balanceTuner = navX.getRoll();
-
-         */
-
-
     }
 
 
@@ -114,9 +161,10 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousPeriodic() {
 
-        DriveTrain.setLeftMotors(0.31);
-        DriveTrain.setRightMotors(0.3);
-
+        if(Timer.getFPGATimestamp() >= 3){
+            DriveTrain.setRightMotors(-0.3);
+            DriveTrain.setLeftMotors(-0.3);
+        }
     }
 
     @Override
@@ -160,13 +208,13 @@ public class Robot extends TimedRobot
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];
 
-        double elevatorMovement = OperatorJoystick.getRawAxis(1);
+        double elevatorMovement = OperatorJoystick.getRawAxis(5);
         if(elevatorMovement > -0.05 && elevatorMovement < 0.05)
             elevatorMovement = 0;
 
         elevator.setElevatorMotors(elevatorMovement*0.5);
 
-        double armMovement = OperatorJoystick.getRawAxis(5);
+        double armMovement = OperatorJoystick.getRawAxis(1);
         if(armMovement > -0.03 && armMovement < 0.03)
             armMovement = 0;
 

@@ -41,8 +41,8 @@ public class seekingCommand extends CommandBase{
             lr[0] -= lr[1]-1;
             lr[1] = 1;
         }
-        driveTrain.setLeftMotors(Math.sqrt(lr[1])*LLmultiplier);
-        driveTrain.setRightMotors(Math.sqrt(lr[0])*LLmultiplier);
+        driveTrain.setLeftMotors(-Math.sqrt(lr[1])*LLmultiplier);
+        driveTrain.setRightMotors(-Math.sqrt(lr[0])*LLmultiplier);
     }
 
     @Override
