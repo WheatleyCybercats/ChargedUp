@@ -2,6 +2,11 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPRamseteCommand;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -11,6 +16,9 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -192,5 +200,29 @@ public class DriveTrain extends SubsystemBase {
 
     public void setLeftMotors(double speed){leftMotors.set(speed);}
     public void setRightMotors(double speed){rightMotors.set(speed);}
+
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    // Reset odometry for the first path you run during auto
+                    if(isFirstPath){
+                        this.resetOdometry(traj.getInitialPose());
+                    }
+                }),
+                new PPRamseteCommand(
+                        traj,
+                        this::getPose, // Pose supplier
+                        new RamseteController(),
+                        new SimpleMotorFeedforward(Constants.Ks, Constants.Kv, Constants.Ka),
+                        Constants.kDriveKinematics, // DifferentialDriveKinematics
+                        this::getWheelSpeeds, // DifferentialDriveWheelSpeeds supplier
+                        new PIDController(0, 0, 0), // Left controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                        new PIDController(0, 0, 0), // Right controller (usually the same values as left controller)
+                        this::tankDriveVolts, // Voltage biconsumer
+                        true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+                        this // Requires this drive subsystem
+                )
+        );
+    }
 
 }
