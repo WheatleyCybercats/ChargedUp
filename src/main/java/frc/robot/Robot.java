@@ -125,9 +125,10 @@ public class Robot extends TimedRobot
         }
 
          */
-
         arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         //SmartDashboard.putNumber("BotPose")
+
+
     }
 
 
@@ -200,10 +201,18 @@ public class Robot extends TimedRobot
         double left = speed - turn;
         double right = speed + turn;
 
+        if (Constants.elevEncoderValue < -10){
+            Constants.dtMultiplier = 0.25;
+        }
+        else {
+            Constants.dtMultiplier = 1;
+        }
+
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
-        DriveTrain.setLeftMotors(left);
-        DriveTrain.setRightMotors(right);
+
+        DriveTrain.setLeftMotors(left * Constants.dtMultiplier);
+        DriveTrain.setRightMotors(right * Constants.dtMultiplier);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];

@@ -20,7 +20,7 @@ public class clawOpenCommand extends CommandBase {
 
     @Override
     public void execute() {
-        claw.closeClaw();
+        claw.openClaw();
     }
 
     @Override

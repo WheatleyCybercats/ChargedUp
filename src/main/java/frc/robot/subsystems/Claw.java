@@ -33,10 +33,10 @@ public class Claw extends SubsystemBase {
     }
 
     public void closeClaw() {
-        claw.set(DoubleSolenoid.Value.kForward);
+        claw.set(DoubleSolenoid.Value.kReverse);
     }
 
     public void openClaw() {
-        claw.set(DoubleSolenoid.Value.kReverse);
+        claw.set(DoubleSolenoid.Value.kForward);
     }
 }
