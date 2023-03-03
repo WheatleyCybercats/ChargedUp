@@ -29,6 +29,7 @@ import org.opencv.imgproc.Imgproc;
 import java.nio.file.Path;
 
 import static frc.robot.Constants.arm;
+import static frc.robot.Constants.dtMultiplier;
 
 
 /**
@@ -126,7 +127,8 @@ public class Robot extends TimedRobot
 
          */
         arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        //SmartDashboard.putNumber("BotPose")
+        SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
+        SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
 
 
     }
@@ -161,11 +163,13 @@ public class Robot extends TimedRobot
     /** This method is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-
+/*
         if(Timer.getFPGATimestamp() >= 3){
             DriveTrain.setRightMotors(-0.3);
             DriveTrain.setLeftMotors(-0.3);
         }
+
+ */
     }
 
     @Override
@@ -211,8 +215,8 @@ public class Robot extends TimedRobot
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
 
-        DriveTrain.setLeftMotors(left * Constants.dtMultiplier);
-        DriveTrain.setRightMotors(right * Constants.dtMultiplier);
+        DriveTrain.setLeftMotors(left*dtMultiplier);
+        DriveTrain.setRightMotors(right*dtMultiplier);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];

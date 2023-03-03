@@ -51,6 +51,20 @@ public final class Constants {
     public static int heightOfTarget = 44;
     public static double angleOfLL = 34.3;
     public static double balanceTuner = 0;
+    public static final class AutoConstants {
+        public static final double kRamseteB = 2.0;
+        public static final double kRamseteZeta = 0.8;
+        public static final double kMaxSpeedMetersPerSecond = 0;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 0;
+    }
+    public static final class DriveConstants{
+        public static final double kPDriveVel = 0;
+        public static final double kTrackwidthMeters = 0.625;
+        public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+        public static final double kvVoltSecondsPerMeter = 0;
+        public static final double ksVolts = 0;
+        public static final double kaVoltSecondsSquaredPerMeter = 0;
+    }
 
     public static final class botpose{
         public static final class Target1{

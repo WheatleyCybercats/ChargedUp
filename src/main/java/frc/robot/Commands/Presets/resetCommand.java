@@ -4,12 +4,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 
 
 public class resetCommand extends CommandBase {
     private final Arm arm = Arm.getInstance();
     private final Elevator elevator = Elevator.getInstance();
+    private final DriveTrain drivetrain = DriveTrain.getInstance();
 
     public resetCommand() {
         // each subsystem used by the command must be passed into the
@@ -34,6 +36,9 @@ public class resetCommand extends CommandBase {
         if (Constants.armEncoderValue < Constants.armBottomConfig){
             arm.setArmMotor(Constants.armSpeed);
         }
+
+        drivetrain.arcadeDrive(-.1, 0);
+        drivetrain.arcadeDrive(-.1, 0);
     }
 
     @Override
@@ -53,5 +58,7 @@ public class resetCommand extends CommandBase {
     public void end(boolean interrupted) {
         arm.setArmMotor(0);
         elevator.setElevatorMotors(0);
+        drivetrain.arcadeDrive(0,0);
+        drivetrain.arcadeDrive(0,0);
     }
 }
