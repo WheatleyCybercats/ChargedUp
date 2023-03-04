@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Commands.seekingCommand;
+import frc.robot.Commands.SeekingCommand;
 import frc.robot.subsystems.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -27,8 +27,10 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.nio.file.Path;
+import java.util.TreeMap;
 
 import static frc.robot.Constants.arm;
+import static frc.robot.Constants.dtMultiplier;
 
 
 /**
@@ -48,10 +50,12 @@ public class Robot extends TimedRobot
     private final frc.robot.subsystems.DriveTrain DriveTrain = new DriveTrain();
     private LemonLight lemonlight = new LemonLight();
     private NavX navX = new NavX();
-    private seekingCommand SC = new seekingCommand(DriveTrain, lemonlight);
+    private SeekingCommand SC = new SeekingCommand(DriveTrain, lemonlight);
     private Arm arm = Arm.getInstance();
     private Elevator elevator = Elevator.getInstance();
     Thread m_visionThread;
+
+    public static Targets[] targets = new Targets[18];
 
 
     /**
@@ -104,6 +108,7 @@ public class Robot extends TimedRobot
         m_visionThread.setDaemon(true);
         m_visionThread.start();
 
+        targets[0] = new Targets("Test", 0, 0, 0);
 
     }
 
@@ -125,9 +130,11 @@ public class Robot extends TimedRobot
         }
 
          */
-
         arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        //SmartDashboard.putNumber("BotPose")
+        SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
+        SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
+
+
     }
 
 
@@ -160,11 +167,13 @@ public class Robot extends TimedRobot
     /** This method is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-
+/*
         if(Timer.getFPGATimestamp() >= 3){
             DriveTrain.setRightMotors(-0.3);
             DriveTrain.setLeftMotors(-0.3);
         }
+
+ */
     }
 
     @Override
@@ -200,10 +209,18 @@ public class Robot extends TimedRobot
         double left = speed - turn;
         double right = speed + turn;
 
+        if (Constants.elevEncoderValue < -10){
+            Constants.dtMultiplier = 0.25;
+        }
+        else {
+            Constants.dtMultiplier = 1;
+        }
+
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
-        DriveTrain.setLeftMotors(left);
-        DriveTrain.setRightMotors(right);
+
+        DriveTrain.setLeftMotors(left*dtMultiplier);
+        DriveTrain.setRightMotors(right*dtMultiplier);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];

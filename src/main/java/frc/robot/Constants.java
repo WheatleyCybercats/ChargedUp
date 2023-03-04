@@ -10,6 +10,8 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
+import java.util.HashMap;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -24,11 +26,14 @@ public final class Constants {
 
     //make a class for Arm
     public static final int armMotor = 5;
-    public static final double armSpeed = 0.65;
+    public static final double armSpeed = 0.7;
+
+    public static double dtMultiplier = 1;
+    public static double scoringY = 10;
 
 
     public static final class elevator{
-        public static final double elevMultiplier = 0.1;
+        public static double elevMultiplier = 1;
         public static final double elevatorSpeed = 0.8;
     }
     public static double armEncoderValue = arm.getEncoderValue();
@@ -36,10 +41,10 @@ public final class Constants {
     public static double armBottomConfig = -0.5;
     public static double elevBottomConfig = -0.1;
     public static final class preset{
-        public static final double armHighPreset = -33; // relative encoder is -22 at optimal point
-        public static final double elevatorHighPreset = -45; // relative encoder is -44 at optimal point
+        public static final double armHighPreset = -35; // relative encoder is -35 at optimal point
+        public static final double elevatorHighPreset = -40; // relative encoder is -45 at optimal point
         public static final double armMidPreset = -37;
-        public static final double elevatorFloorPreset = -8;
+        public static final double elevatorFloorPreset = -7;
         public static final double armFloorPreset = -24;
         public static final double substationPreset = -32;
     }
@@ -49,5 +54,20 @@ public final class Constants {
     public static int heightOfTarget = 44;
     public static double angleOfLL = 34.3;
     public static double balanceTuner = 0;
+    public static final class AutoConstants {
+        public static final double kRamseteB = 2.0;
+        public static final double kRamseteZeta = 0.8;
+        public static final double kMaxSpeedMetersPerSecond = 0;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 0;
+    }
+    public static final class DriveConstants{
+        public static final double kPDriveVel = 0;
+        public static final double kTrackwidthMeters = 0.625;
+        public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
+        public static final double kvVoltSecondsPerMeter = 0;
+        public static final double ksVolts = 0;
+        public static final double kaVoltSecondsSquaredPerMeter = 0;
+    }
+
 
 }

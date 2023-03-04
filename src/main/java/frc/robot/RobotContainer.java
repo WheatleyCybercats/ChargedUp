@@ -5,17 +5,29 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Commands.*;
-import frc.robot.Commands.Autos.auto1;
 import frc.robot.Commands.Presets.*;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
 import frc.robot.subsystems.NavX;
+
+import java.util.List;
 
 
 /**
@@ -30,8 +42,8 @@ public class RobotContainer
     private final Joystick OperatorJoystick = new Joystick(1);
     private final DriveTrain TrainDrive = new DriveTrain();
     private final NavX xNav = new NavX();
-    private final seekingCommand SC = new seekingCommand(TrainDrive, new LemonLight());
-    private final balancingCommand BC = new balancingCommand(TrainDrive, xNav);
+    private final SeekingCommand SC = new SeekingCommand(TrainDrive, new LemonLight());
+    private final BalancingCommand BC = new BalancingCommand(TrainDrive, xNav);
     /* button-activated commands that were originally bound to the driver controller during testing
     public final armOutCommand AO = new armOutCommand();
     public final armInCommand AI = new armInCommand();
@@ -118,11 +130,61 @@ public class RobotContainer
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand()
-    {
-        // An ExampleCommand will run in autonomous
-        //return new seekingCommand(TrainDrive, new LemonLight());
-        return new auto1();
+    public Command getAutonomousCommand() {
+        // Create a voltage constraint to ensure we don't accelerate too fast
+        var autoVoltageConstraint =
+                new DifferentialDriveVoltageConstraint(
+                        new SimpleMotorFeedforward(
+                                Constants.DriveConstants.ksVolts,
+                                Constants.DriveConstants.kvVoltSecondsPerMeter,
+                                Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
+                        Constants.DriveConstants.kDriveKinematics,
+                        10);
 
+        // Create config for trajectory
+        TrajectoryConfig config =
+                new TrajectoryConfig(
+                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                        // Add kinematics to ensure max speed is actually obeyed
+                        .setKinematics(Constants.DriveConstants.kDriveKinematics)
+                        // Apply the voltage constraint
+                        .addConstraint(autoVoltageConstraint);
+
+        // An example trajectory to follow.  All units in meters.
+        Trajectory exampleTrajectory =
+                TrajectoryGenerator.generateTrajectory(
+                        // Start at the origin facing the +X direction
+                        new Pose2d(0, 0, new Rotation2d(0)),
+                        // Pass through these two interior waypoints, making an 's' curve path
+                        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+                        // End 3 meters straight ahead of where we started, facing forward
+                        new Pose2d(3, 0, new Rotation2d(0)),
+                        // Pass config
+                        config);
+
+        RamseteCommand ramseteCommand =
+                new RamseteCommand(
+                        exampleTrajectory,
+                        TrainDrive::getPose,
+                        new RamseteController(Constants.AutoConstants.kRamseteB, Constants.AutoConstants.kRamseteZeta),
+                        new SimpleMotorFeedforward(
+                                Constants.DriveConstants.ksVolts,
+                                Constants.DriveConstants.kvVoltSecondsPerMeter,
+                                Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
+                        Constants.DriveConstants.kDriveKinematics,
+                        TrainDrive::getWheelSpeeds,
+                        new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
+                        new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
+                        // RamseteCommand passes volts to the callback
+                        TrainDrive::tankDriveVolts,
+                        TrainDrive);
+
+        // Reset odometry to the starting pose of the trajectory.
+        TrainDrive.resetOdometry(exampleTrajectory.getInitialPose());
+
+        // Run path following command, then stop at the end.
+        return ramseteCommand.andThen(() -> TrainDrive.tankDriveVolts(0, 0));
     }
 }
+

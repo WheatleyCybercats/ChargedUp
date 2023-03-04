@@ -23,6 +23,7 @@ public class LemonLight extends SubsystemBase {
     private NetworkTableEntry ty;
     private NetworkTableEntry ta;
     private NetworkTableEntry tv;
+    private double[] botpose = new double[6];
 
     /**
      * Returns the Singleton instance of this LemonLight. This static method
@@ -50,6 +51,7 @@ public class LemonLight extends SubsystemBase {
         this.ty = table.getEntry("ty");
         this.ta = table.getEntry("ta");
         this.tv = table.getEntry("tv");
+        this.botpose = table.getEntry("botpose").getDoubleArray(new double[6]);
     }
     public double[] readValues(){
         double x = tx.getDouble(0.0);
@@ -57,6 +59,10 @@ public class LemonLight extends SubsystemBase {
         double area = ta.getDouble(0.0);
         double v = tv.getDouble(0.0);
         return new double[]{x, y, area, v};
+    }
+
+    public double[] getBotpose(){
+        return this.botpose;
     }
 }
 
