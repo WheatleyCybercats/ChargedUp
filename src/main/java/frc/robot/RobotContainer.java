@@ -38,6 +38,10 @@ import java.util.List;
  */
 public class RobotContainer
 {
+    // A simple auto routine that drives forward a specified distance, and then stops.
+
+
+
     private final Joystick DriverJoystick = new Joystick(0);
     private final Joystick OperatorJoystick = new Joystick(1);
     private final DriveTrain TrainDrive = new DriveTrain();

@@ -16,10 +16,12 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Commands.seekingCommand;
+import frc.robot.Commands.*;
+import frc.robot.Commands.Autos.placeConeCommandGroup;
 import frc.robot.subsystems.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -40,7 +42,7 @@ import static frc.robot.Constants.dtMultiplier;
  */
 public class Robot extends TimedRobot
 {
-    private Command autonomousCommand;
+    public Command autonomousCommand;
 
     private RobotContainer robotContainer;
 
@@ -54,6 +56,11 @@ public class Robot extends TimedRobot
     private Elevator elevator = Elevator.getInstance();
     Thread m_visionThread;
 
+    private static final String defaultAuto = "default";
+    private static final String customAuto = "custom";
+    private String selectedAuto;
+    private final SendableChooser<String> chooser = new SendableChooser<>();
+
 
     /**
      * This method is run when the robot is first started up and should be used for any
@@ -64,6 +71,9 @@ public class Robot extends TimedRobot
 
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
+
+        // instantiate the command used for the autonomous period
+        autonomousCommand = new placeConeCommandGroup();
 
         robotContainer = new RobotContainer();
 
@@ -104,10 +114,7 @@ public class Robot extends TimedRobot
                         });
         m_visionThread.setDaemon(true);
         m_visionThread.start();
-
-
     }
-
     /**
      * This method is called every robot packet, no matter the mode. Use this for items like
      * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -124,13 +131,14 @@ public class Robot extends TimedRobot
         if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
             elevator.setElevatorMotors(0);
         }
-
          */
         arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
         SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
 
-
+        chooser.setDefaultOption("Default Auto", defaultAuto);
+        chooser.addOption("Custom Auto", customAuto);
+        SmartDashboard.putData("Auto Choices", chooser);
     }
 
 
@@ -157,6 +165,12 @@ public class Robot extends TimedRobot
         }
 */
         Constants.balanceTuner = navX.getRoll();
+
+        selectedAuto = chooser.getSelected();
+        SmartDashboard.putString("Selected Auto: ", selectedAuto);
+
+        if (autonomousCommand != null)
+            autonomousCommand.execute(); //or .schedule()
     }
 
 
@@ -168,8 +182,28 @@ public class Robot extends TimedRobot
             DriveTrain.setRightMotors(-0.3);
             DriveTrain.setLeftMotors(-0.3);
         }
-
  */
+        switch (selectedAuto) {
+            case customAuto:
+                // custom auto code here
+                // place cube and move back past mobility line
+                autonomousCommand.execute();
+                if(Timer.getFPGATimestamp() >= 4){
+                    DriveTrain.setRightMotors(-0.2);
+                    DriveTrain.setLeftMotors(-0.2);
+                }
+                break;
+            case defaultAuto:
+            default:
+                // default auto code here
+                if(Timer.getFPGATimestamp() <= 3){
+                    DriveTrain.setRightMotors(0.2);
+                    DriveTrain.setLeftMotors(0.2);
+                }
+                break;
+        }
+
+
     }
 
     @Override
@@ -205,7 +239,7 @@ public class Robot extends TimedRobot
         double left = speed - turn;
         double right = speed + turn;
 
-        if (Constants.elevEncoderValue < -10){
+        if (Constants.elevEncoderValue < -15){
             Constants.dtMultiplier = 0.25;
         }
         else {
@@ -215,8 +249,8 @@ public class Robot extends TimedRobot
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
 
-        DriveTrain.setLeftMotors(left*dtMultiplier);
-        DriveTrain.setRightMotors(right*dtMultiplier);
+        DriveTrain.setLeftMotors(left);
+        DriveTrain.setRightMotors(right);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];

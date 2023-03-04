@@ -37,8 +37,8 @@ public class resetCommand extends CommandBase {
             arm.setArmMotor(Constants.armSpeed);
         }
 
-        drivetrain.arcadeDrive(-.1, 0);
-        drivetrain.arcadeDrive(-.1, 0);
+        drivetrain.arcadeDrive(-.15, 0);
+        drivetrain.arcadeDrive(-.15, 0);
     }
 
     @Override

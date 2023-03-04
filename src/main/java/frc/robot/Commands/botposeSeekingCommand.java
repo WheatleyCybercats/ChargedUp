@@ -28,7 +28,6 @@ public class botposeSeekingCommand extends CommandBase {
     public void execute() {
         double[] botpose = lemonLight.getBotpose();
         //x,y,z,roll,pitch,yaw
-
     }
 
     @Override
@@ -39,6 +38,5 @@ public class botposeSeekingCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-
     }
 }
