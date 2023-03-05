@@ -24,26 +24,26 @@ public final class Constants {
 
     //make a class for Arm
     public static final int armMotor = 5;
-    public static final double armSpeed = 0.7;
+    public static final double armSpeed = 0.55;
 
     public static double dtMultiplier = 1;
 
 
     public static final class elevator{
         public static double elevMultiplier = 1;
-        public static final double elevatorSpeed = 0.8;
+        public static final double elevatorSpeed = 0.75;
     }
     public static double armEncoderValue = arm.getEncoderValue();
     public static double elevEncoderValue = elev.getEncoderValue()[2];
     public static double armBottomConfig = -5;
     public static double elevBottomConfig = -1;
     public static final class preset{
-        public static final double armHighPreset = -31; // relative encoder is -35 at optimal point
-        public static final double elevatorHighPreset = -37; // relative encoder is -45 at optimal point
-        public static final double armMidPreset = -32;
+        public static final double armHighPreset = -30; // relative encoder is -35 at optimal point
+        public static final double elevatorHighPreset = -40; // relative encoder is -45 at optimal point
+        public static final double armMidPreset = -30;
         public static final double elevatorFloorPreset = -7;
-        public static final double armFloorPreset = -50;
-        public static final double substationPreset = -32;
+        public static final double armFloorPreset = -36;
+        public static final double substationPreset = -24.5;
     }
     public static double LLmultiplier = 0.15;
     public static double Navmultiplier = 0.04;

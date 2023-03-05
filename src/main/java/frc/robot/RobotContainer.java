@@ -5,29 +5,17 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Commands.*;
 import frc.robot.Commands.Presets.*;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
 import frc.robot.subsystems.NavX;
-
-import java.util.List;
 
 
 /**
@@ -36,10 +24,8 @@ import java.util.List;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer
-{
+public class RobotContainer {
     // A simple auto routine that drives forward a specified distance, and then stops.
-
 
 
     private final Joystick DriverJoystick = new Joystick(0);
@@ -62,23 +48,23 @@ public class RobotContainer
     public final clawOpenCommand CO = new clawOpenCommand();
     public final armToFloorCommand FL = new armToFloorCommand();
     public final substationCommand SB = new substationCommand();
-    
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
-    public RobotContainer()
-    {
+
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
         // Configure the button bindings
         configureButtonBindings();
     }
-    
-    
+
+
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
      * instantiating a {@link GenericHID} or one of its subclasses ({@link
      * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
-    private void configureButtonBindings()
-    {
+    private void configureButtonBindings() {
         int A = 1;
         int B = 2;
         int X = 3;
@@ -135,6 +121,7 @@ public class RobotContainer
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
+        /*
         // Create a voltage constraint to ensure we don't accelerate too fast
         var autoVoltageConstraint =
                 new DifferentialDriveVoltageConstraint(
@@ -189,6 +176,10 @@ public class RobotContainer
 
         // Run path following command, then stop at the end.
         return ramseteCommand.andThen(() -> TrainDrive.tankDriveVolts(0, 0));
+    }
+
+         */
+        return new SequentialCommandGroup(new highPresetCommand().withTimeout(3), new clawOpenCommand().withTimeout(1.5), new resetCommand().withTimeout(3));
     }
 }
 
