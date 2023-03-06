@@ -11,7 +11,7 @@ import frc.robot.subsystems.Elevator;
 public class resetCommand extends CommandBase {
     private final Arm arm = Arm.getInstance();
     private final Elevator elevator = Elevator.getInstance();
-    private final DriveTrain drivetrain = DriveTrain.getInstance();
+    private final DriveTrain drivetrain = new DriveTrain();
 
     public resetCommand() {
         // each subsystem used by the command must be passed into the
@@ -37,8 +37,8 @@ public class resetCommand extends CommandBase {
             arm.setArmMotor(Constants.armSpeed);
         }
 
-        drivetrain.arcadeDrive(-.15, 0);
-        drivetrain.arcadeDrive(-.15, 0);
+        //drivetrain.arcadeDrive(-.15, 0);
+        //drivetrain.arcadeDrive(-.15, 0);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class resetCommand extends CommandBase {
     public void end(boolean interrupted) {
         arm.setArmMotor(0);
         elevator.setElevatorMotors(0);
-        drivetrain.arcadeDrive(0,0);
-        drivetrain.arcadeDrive(0,0);
+        //drivetrain.arcadeDrive(0,0);
+        //drivetrain.arcadeDrive(0,0);
     }
 }

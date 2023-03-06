@@ -20,8 +20,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Commands.*;
-import frc.robot.Commands.Autos.placeConeCommandGroup;
+import frc.robot.Commands.Presets.highPresetCommand;
+import frc.robot.Commands.Presets.resetCommand;
 import frc.robot.subsystems.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -73,10 +75,9 @@ public class Robot extends TimedRobot
         // autonomous chooser on the dashboard.
 
         // instantiate the command used for the autonomous period
-        autonomousCommand = new placeConeCommandGroup();
 
         robotContainer = new RobotContainer();
-
+/*
         m_visionThread =
                 new Thread(
                         () -> {
@@ -114,6 +115,8 @@ public class Robot extends TimedRobot
                         });
         m_visionThread.setDaemon(true);
         m_visionThread.start();
+
+ */
     }
     /**
      * This method is called every robot packet, no matter the mode. Use this for items like
@@ -124,7 +127,9 @@ public class Robot extends TimedRobot
      */
     @Override
     public void robotPeriodic() {
+
         CommandScheduler.getInstance().run();
+
         /*
        // double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
@@ -133,12 +138,13 @@ public class Robot extends TimedRobot
         }
          */
         arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
-        SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
+        //SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
+        //SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
 
         chooser.setDefaultOption("Default Auto", defaultAuto);
         chooser.addOption("Custom Auto", customAuto);
         SmartDashboard.putData("Auto Choices", chooser);
+        SmartDashboard.putNumber("Elevator Encoder 2", elevator.getEncoderValue()[1]);
     }
 
 
@@ -151,11 +157,11 @@ public class Robot extends TimedRobot
     public void disabledPeriodic() {}
 
 
-    /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+    /** This autonomous runs the +autonomous command selected by your {@link RobotContainer} class. */
     @Override
     public void autonomousInit()
     {
-/*
+        /*
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
@@ -163,31 +169,49 @@ public class Robot extends TimedRobot
         {
             autonomousCommand.schedule();
         }
-*/
-        Constants.balanceTuner = navX.getRoll();
-
         selectedAuto = chooser.getSelected();
         SmartDashboard.putString("Selected Auto: ", selectedAuto);
 
-        if (autonomousCommand != null)
-            autonomousCommand.execute(); //or .schedule()
+
+
+         */
+        Constants.balanceTuner = navX.getRoll();
     }
+
 
 
     /** This method is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-/*
-        if(Timer.getFPGATimestamp() >= 3){
-            DriveTrain.setRightMotors(-0.3);
-            DriveTrain.setLeftMotors(-0.3);
+
+        //Create a driveDistance command for the drivetrain. Then in robotcontainer, return a sequential command that drives a certain distance and do something. Also should be chained together
+
+        SmartDashboard.putNumber("MATCH TIME", Timer.getMatchTime());
+
+        /**WORKING AUTO**/
+
+        //if(Timer.getMatchTime() >= 3){
+        if (DriveTrain.getRightEncoderValue() > 100_000){
+            SmartDashboard.putNumber("Right DT Encoder", DriveTrain.getRightEncoderValue());
+            DriveTrain.setRightMotors(0.3);
+        }else{
+            DriveTrain.setRightMotors(0);
         }
- */
+        if(DriveTrain.getLeftEncoderValue() > 100_000){
+            SmartDashboard.putNumber("Left DT Encoder", DriveTrain.getLeftEncoderValue());
+            DriveTrain.setLeftMotors(0.3);
+        }else{
+            DriveTrain.setLeftMotors(0);
+        }
+
+        /**WORKING AUTO END**/
+
+        /*
         switch (selectedAuto) {
             case customAuto:
                 // custom auto code here
                 // place cube and move back past mobility line
-                autonomousCommand.execute();
+                autonomousCommand.schedule();
                 if(Timer.getFPGATimestamp() >= 4){
                     DriveTrain.setRightMotors(-0.2);
                     DriveTrain.setLeftMotors(-0.2);
@@ -202,6 +226,8 @@ public class Robot extends TimedRobot
                 }
                 break;
         }
+
+         */
 
 
     }
@@ -219,6 +245,8 @@ public class Robot extends TimedRobot
         }
         Constants.balanceTuner = navX.getRoll();
 
+        Constants.armEncoderValue = 0;
+        Constants.elevEncoderValue = 0;
     }
 
 
@@ -252,8 +280,9 @@ public class Robot extends TimedRobot
         DriveTrain.setLeftMotors(left);
         DriveTrain.setRightMotors(right);
 
+        //Update elevator in robot periodic
         Constants.armEncoderValue = arm.getEncoderValue();
-        Constants.elevEncoderValue = elevator.getEncoderValue()[2];
+        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
 
         double elevatorMovement = OperatorJoystick.getRawAxis(5);
         if(elevatorMovement > -0.05 && elevatorMovement < 0.05)

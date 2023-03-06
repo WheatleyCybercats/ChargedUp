@@ -10,10 +10,8 @@ public class Elevator extends SubsystemBase {
 
     public CANSparkMax elevatorMotor1 = new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless);
     public CANSparkMax elevatorMotor2 = new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless);
-    //private AbsoluteEncoder encoder1;
-    //private AbsoluteEncoder encoder2;
-    public RelativeEncoder encoder1;
-    public RelativeEncoder encoder2;
+    private RelativeEncoder encoder1;
+    private RelativeEncoder encoder2;
     private final static Elevator INSTANCE = new Elevator();
 
     /**
@@ -49,7 +47,7 @@ public class Elevator extends SubsystemBase {
         elevatorMotor2.set(elevatorSpeed);
         SmartDashboard.putNumber("Elevator Encoder", getEncoderValue()[2]);
     }
-
+    //TODO: Refractor the code so that all the places take the value from Constants so that the value stays the same
     public double[] getEncoderValue(){
         double[] encoderValues = {encoder1.getPosition(), encoder2.getPosition(), (encoder1.getPosition() + encoder2.getPosition())/2};
         return encoderValues;

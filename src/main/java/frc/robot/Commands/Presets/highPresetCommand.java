@@ -18,11 +18,8 @@ public class highPresetCommand extends CommandBase {
     }
 
     @Override
-    public void initialize() {/*
-        elevator.encoder2.setPosition(0);
-        elevator.encoder1.setPosition(0);
-        arm.armEncoder.setPosition(0);
-        */
+    public void initialize() {
+        //Constants.elevEncoderValue = 0;
     }
 
     @Override

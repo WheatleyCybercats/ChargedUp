@@ -19,7 +19,7 @@ public class substationCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        claw.openClaw();
+        claw.closeClaw();
     }
 
     @Override

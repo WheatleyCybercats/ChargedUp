@@ -5,29 +5,17 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Commands.*;
 import frc.robot.Commands.Presets.*;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
 import frc.robot.subsystems.NavX;
-
-import java.util.List;
 
 
 /**
@@ -36,10 +24,8 @@ import java.util.List;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer
-{
+public class RobotContainer {
     // A simple auto routine that drives forward a specified distance, and then stops.
-
 
 
     private final Joystick DriverJoystick = new Joystick(0);
@@ -55,30 +41,30 @@ public class RobotContainer
     public final elevatorInCommand EI = new elevatorInCommand();
      */
     public final highPresetCommand HP = new highPresetCommand();
-    public final midPresetCommand LP = new midPresetCommand();
+    public final midPresetCommand MP = new midPresetCommand();
     public final resetCommand IN = new resetCommand();
     public final unlockResetCommand UN = new unlockResetCommand();
     public final clawCloseCommand CC = new clawCloseCommand();
     public final clawOpenCommand CO = new clawOpenCommand();
     public final armToFloorCommand FL = new armToFloorCommand();
     public final substationCommand SB = new substationCommand();
-    
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
-    public RobotContainer()
-    {
+
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
         // Configure the button bindings
         configureButtonBindings();
     }
-    
-    
+
+
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
      * instantiating a {@link GenericHID} or one of its subclasses ({@link
      * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
-    private void configureButtonBindings()
-    {
+    private void configureButtonBindings() {
         int A = 1;
         int B = 2;
         int X = 3;
@@ -87,15 +73,19 @@ public class RobotContainer
         int rightTrig = 6;
 
         /** DRIVER CONTROLLER **/
+        /*
         JoystickButton resetCommand = new JoystickButton(DriverJoystick, A);
         resetCommand.whenPressed(IN);
-        JoystickButton balanceButton = new JoystickButton(DriverJoystick, B); // 2 = B
-        balanceButton.whileTrue(BC);
+
         JoystickButton armToFloor = new JoystickButton(DriverJoystick, X);
         armToFloor.whenPressed(FL);
         JoystickButton substation = new JoystickButton(DriverJoystick, Y);
         substation.whenPressed(SB);
 
+         */
+
+        JoystickButton balanceButton = new JoystickButton(DriverJoystick, B); // 2 = B
+        balanceButton.whileTrue(BC);
 
         /* button-activated commands that were originally bound to the driver controller during testing
         JoystickButton armOut = new JoystickButton(OperatorJoystick, Y; // 4 = Y
@@ -109,10 +99,11 @@ public class RobotContainer
          */
 
         /** OPERATOR CONTROLLER **/
+
         JoystickButton highPreset = new JoystickButton(OperatorJoystick, Y); // Y = 4
         highPreset.whenPressed(HP);
-        JoystickButton lowPreset = new JoystickButton(OperatorJoystick, X); // X = 3
-        lowPreset.whenPressed(LP);
+        JoystickButton midPreset = new JoystickButton(OperatorJoystick, X); // X = 3
+        midPreset.whenPressed(MP);
         JoystickButton reset = new JoystickButton(OperatorJoystick, A); // A = 1
         reset.whenPressed(IN);
         JoystickButton floor = new JoystickButton(OperatorJoystick, B);
@@ -123,6 +114,8 @@ public class RobotContainer
         armToSubstation.whenPressed(SB);
         //JoystickButton seekButton = new JoystickButton(OperatorJoystick, B);
         //seekButton.whileTrue(SC);
+
+
         JoystickButton clawOpen = new JoystickButton(OperatorJoystick, leftTrig);//close
         clawOpen.whileTrue(CO);
         JoystickButton closeClaw = new JoystickButton(OperatorJoystick, rightTrig);//open
@@ -135,6 +128,7 @@ public class RobotContainer
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
+        /*
         // Create a voltage constraint to ensure we don't accelerate too fast
         var autoVoltageConstraint =
                 new DifferentialDriveVoltageConstraint(
@@ -189,6 +183,11 @@ public class RobotContainer
 
         // Run path following command, then stop at the end.
         return ramseteCommand.andThen(() -> TrainDrive.tankDriveVolts(0, 0));
+    }
+
+         */
+        //return new SequentialCommandGroup(new highPresetCommand().withTimeout(3), new clawOpenCommand().withTimeout(1.5), new resetCommand().withTimeout(3));
+    return null;
     }
 }
 
