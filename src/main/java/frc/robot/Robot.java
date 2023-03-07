@@ -13,6 +13,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -59,6 +60,7 @@ public class Robot extends TimedRobot {
     public static Targets[] targets = new Targets[18];
     String selectedAuto;
     private double translation;
+    private double lastKnownGyro;
 
 
     /**
@@ -124,7 +126,7 @@ public class Robot extends TimedRobot {
 
         chooser.addOption("Aton", "Aton");
 
-        navXYaw = NavX.getInstance().getYaw();
+        lastKnownGyro = navX.getYaw();
         if(LL.getBotpose()[0] != 0){
             localLocation[0] = LL.getBotpose()[0];
         }
@@ -132,8 +134,20 @@ public class Robot extends TimedRobot {
             localLocation[1] = LL.getBotpose()[1];
         }
 
+        if(LL.getBotpose()[5] != 0){
+            localLocation[2] = LL.getBotpose()[5];
+        }else{
+            localLocation[2] = lastKnownGyro-navXYaw;
+            if(localLocation[2] > 360){
+                localLocation[2] -= 360;
+            }
+        }
+
+        SmartDashboard.putNumber("NavX yaw", navX.getYaw());
+        SmartDashboard.putNumber("Limelight yaw", LL.getBotpose()[5]);
         SmartDashboard.putNumber("Local X", localLocation[0]);
         SmartDashboard.putNumber("Local Y", localLocation[1]);
+        SmartDashboard.putNumber("Yaw", localLocation[2]);
     }
 
 

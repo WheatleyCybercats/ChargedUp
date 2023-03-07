@@ -73,6 +73,7 @@ public final class Constants {
     }
 
     public static double[] localLocation = new double[3];
+    //x,y,yaw
     public static double navXYaw;
     public static final double ticksPerMeter = 43894;
 

@@ -50,8 +50,6 @@ public class NavX extends SubsystemBase {
     }
 
     public double getYaw(){
-        return ahrs.getYaw();
+        return (ahrs.getYaw()+360)%360;
     }
-
 }
-
