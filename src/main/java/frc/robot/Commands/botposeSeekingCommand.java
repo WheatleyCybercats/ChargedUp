@@ -62,6 +62,7 @@ public class botposeSeekingCommand extends CommandBase {
     @Override
     public boolean isFinished() {
         //TODO: Making it so it can know if the robot's line is within a certain amount to the target
+
         return false;
     }
 
@@ -72,12 +73,6 @@ public class botposeSeekingCommand extends CommandBase {
 
     private double calculateDistance(double x1, double y1, double x2, double y2){
         return Math.sqrt(Math.pow((x2-x1), 2)+Math.pow((y2-y1), 2));
-    }
-
-    private double calculateSlope(double x1, double y1, double x2, double y2){
-        double changeInY = y2-y1;
-        double changeInX = x2-x1;
-        return changeInY/changeInX;
     }
     private double[] lr(double[] botpose){
         double[] output = {0, 0};

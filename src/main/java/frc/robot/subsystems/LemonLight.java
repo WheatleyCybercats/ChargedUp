@@ -51,7 +51,8 @@ public class LemonLight extends SubsystemBase {
         this.ty = table.getEntry("ty");
         this.ta = table.getEntry("ta");
         this.tv = table.getEntry("tv");
-        this.botpose = table.getEntry("botpose").getDoubleArray(new double[6]);
+        this.botpose = table.getEntry("botpose_wpired").getDoubleArray(new double[6]);
+        //x,y,z,roll,pitch,yaw,latency
     }
     public double[] readValues(){
         double x = tx.getDouble(0.0);

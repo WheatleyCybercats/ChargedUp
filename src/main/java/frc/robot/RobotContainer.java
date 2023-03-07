@@ -5,6 +5,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Commands.*;
 import frc.robot.Commands.Presets.*;
@@ -40,10 +43,11 @@ public class RobotContainer
 {
     private final Joystick DriverJoystick = new Joystick(0);
     private final Joystick OperatorJoystick = new Joystick(1);
-    private final DriveTrain TrainDrive = new DriveTrain();
+    private final DriveTrain TrainDrive = DriveTrain.getInstance();
     private final NavX xNav = new NavX();
     private final SeekingCommand SC = new SeekingCommand(TrainDrive, new LemonLight());
     private final BalancingCommand BC = new BalancingCommand(TrainDrive, xNav);
+    private final botposeSeekingCommand BPS = new botposeSeekingCommand(TrainDrive, new LemonLight());
     /* button-activated commands that were originally bound to the driver controller during testing
     public final armOutCommand AO = new armOutCommand();
     public final armInCommand AI = new armInCommand();
@@ -83,14 +87,10 @@ public class RobotContainer
         int rightTrig = 6;
 
         /** DRIVER CONTROLLER **/
-        JoystickButton resetCommand = new JoystickButton(DriverJoystick, A);
-        resetCommand.whenPressed(IN);
+        JoystickButton LimelightAlign = new JoystickButton(DriverJoystick, A);
+        LimelightAlign.whenPressed(BPS);
         JoystickButton balanceButton = new JoystickButton(DriverJoystick, B); // 2 = B
         balanceButton.whileTrue(BC);
-        JoystickButton armToFloor = new JoystickButton(DriverJoystick, X);
-        armToFloor.whenPressed(FL);
-        JoystickButton substation = new JoystickButton(DriverJoystick, Y);
-        substation.whenPressed(SB);
 
 
         /* button-activated commands that were originally bound to the driver controller during testing
@@ -130,61 +130,37 @@ public class RobotContainer
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand() {
-        // Create a voltage constraint to ensure we don't accelerate too fast
-        var autoVoltageConstraint =
-                new DifferentialDriveVoltageConstraint(
-                        new SimpleMotorFeedforward(
-                                Constants.DriveConstants.ksVolts,
-                                Constants.DriveConstants.kvVoltSecondsPerMeter,
-                                Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
-                        Constants.DriveConstants.kDriveKinematics,
-                        10);
-
-        // Create config for trajectory
-        TrajectoryConfig config =
-                new TrajectoryConfig(
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                        // Add kinematics to ensure max speed is actually obeyed
-                        .setKinematics(Constants.DriveConstants.kDriveKinematics)
-                        // Apply the voltage constraint
-                        .addConstraint(autoVoltageConstraint);
-
+    public Command getAutonomousCommand(String auto) {
         // An example trajectory to follow.  All units in meters.
-        Trajectory exampleTrajectory =
-                TrajectoryGenerator.generateTrajectory(
-                        // Start at the origin facing the +X direction
-                        new Pose2d(0, 0, new Rotation2d(0)),
-                        // Pass through these two interior waypoints, making an 's' curve path
-                        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-                        // End 3 meters straight ahead of where we started, facing forward
-                        new Pose2d(3, 0, new Rotation2d(0)),
-                        // Pass config
-                        config);
+        Trajectory exampleTrajectory = PathPlanner.loadPath(auto, new PathConstraints(3, 2));
+        //Chain this to a sequential command group
+        //SequentialCommandGroup DrivePoint1 = TrainDrive.returnRamseteCommand(exampleTrajectory);
+        return new SequentialCommandGroup();
 
-        RamseteCommand ramseteCommand =
-                new RamseteCommand(
-                        exampleTrajectory,
-                        TrainDrive::getPose,
-                        new RamseteController(Constants.AutoConstants.kRamseteB, Constants.AutoConstants.kRamseteZeta),
-                        new SimpleMotorFeedforward(
-                                Constants.DriveConstants.ksVolts,
-                                Constants.DriveConstants.kvVoltSecondsPerMeter,
-                                Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
-                        Constants.DriveConstants.kDriveKinematics,
-                        TrainDrive::getWheelSpeeds,
-                        new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
-                        new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
-                        // RamseteCommand passes volts to the callback
-                        TrainDrive::tankDriveVolts,
-                        TrainDrive);
-
-        // Reset odometry to the starting pose of the trajectory.
-        TrainDrive.resetOdometry(exampleTrajectory.getInitialPose());
-
-        // Run path following command, then stop at the end.
-        return ramseteCommand.andThen(() -> TrainDrive.tankDriveVolts(0, 0));
+        //    public SequentialCommandGroup returnRamseteCommand(Trajectory exampleTrajectory){
+        //    RamseteCommand ramseteCommand =
+        //            new RamseteCommand(
+        //                    exampleTrajectory,
+        //                    this::getPose,
+        //                    new RamseteController(Constants.AutoConstants.kRamseteB, Constants.AutoConstants.kRamseteZeta),
+        //                    new SimpleMotorFeedforward(
+        //                            Constants.DriveConstants.ksVolts,
+        //                            Constants.DriveConstants.kvVoltSecondsPerMeter,
+        //                            Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
+        //                    Constants.DriveConstants.kDriveKinematics,
+        //                    this::getWheelSpeeds,
+        //                    new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
+        //                    new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
+        //                    // RamseteCommand passes volts to the callback
+        //                    this::tankDriveVolts,
+        //                    this);
+        //
+        //    // Reset odometry to the starting pose of the trajectory.
+        //        this.resetOdometry(exampleTrajectory.getInitialPose());
+        //
+        //    // Run path following command, then stop at the end.
+        //        return ramseteCommand.andThen(() -> this.tankDriveVolts(0, 0));
+        //}
     }
 }
 

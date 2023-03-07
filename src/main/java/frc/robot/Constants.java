@@ -21,6 +21,9 @@ import java.util.HashMap;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static String color = "RED";
+
     public static Arm arm = Arm.getInstance();
     public static Elevator elev = Elevator.getInstance();
 
@@ -69,5 +72,8 @@ public final class Constants {
         public static final double kaVoltSecondsSquaredPerMeter = 0;
     }
 
+    public static double[] localLocation = new double[3];
+    public static double navXYaw;
+    public static final double ticksPerMeter = 43894;
 
 }

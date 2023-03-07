@@ -16,6 +16,7 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -26,11 +27,11 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import java.lang.annotation.Target;
 import java.nio.file.Path;
 import java.util.TreeMap;
 
-import static frc.robot.Constants.arm;
-import static frc.robot.Constants.dtMultiplier;
+import static frc.robot.Constants.*;
 
 
 /**
@@ -39,23 +40,25 @@ import static frc.robot.Constants.dtMultiplier;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot
-{
+public class Robot extends TimedRobot {
+
+    private final SendableChooser<String> chooser = new SendableChooser<>();
     private Command autonomousCommand;
 
     private RobotContainer robotContainer;
 
     private final Joystick DriverJoystick = new Joystick(0);
     private final Joystick OperatorJoystick = new Joystick(1);
-    private final frc.robot.subsystems.DriveTrain DriveTrain = new DriveTrain();
+    private final DriveTrain driveTrain = DriveTrain.getInstance();
     private LemonLight lemonlight = new LemonLight();
     private NavX navX = new NavX();
-    private SeekingCommand SC = new SeekingCommand(DriveTrain, lemonlight);
+    private SeekingCommand SC = new SeekingCommand(driveTrain, lemonlight);
     private Arm arm = Arm.getInstance();
     private Elevator elevator = Elevator.getInstance();
-    Thread m_visionThread;
 
     public static Targets[] targets = new Targets[18];
+    String selectedAuto;
+    private double translation;
 
 
     /**
@@ -65,51 +68,36 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit() {
 
+        if(Constants.color.equalsIgnoreCase("RED")){
+            translation = 15.85;
+        }
+
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
 
         robotContainer = new RobotContainer();
 
-        m_visionThread =
-                new Thread(
-                        () -> {
-                            // Get the UsbCamera from CameraServer
-                            UsbCamera camera = CameraServer.startAutomaticCapture();
-                            // Set the resolution
-                            camera.setResolution(640, 480);
+        targets[0] = new Targets("1", 0.35 + translation, 0.50, 1.11);
+        targets[1] = new Targets("2", 0.7 + translation, 0.5, 0.81);
+        targets[2] = new Targets("3", 0.35 + translation, 1.05, 1.11);
+        targets[3] = new Targets("4", 0.7 + translation, 1.05, 0.81);
+        targets[4] = new Targets("5", 0.35 + translation, 1.61, 1.11);
+        targets[5] = new Targets("6", 0.7 + translation, 1.61, 0.81);
+        targets[6] = new Targets("7", 0.35 + translation, 2.2, 1.11);
+        targets[7] = new Targets("8", 0.7 + translation, 2.2, 0.81);
+        targets[8] = new Targets("9", 0.35 + translation, 2.75, 1.11);
+        targets[9] = new Targets("10", 0.7 + translation, 2.75, 0.81);
+        targets[10] = new Targets("11", 0.35 + translation, 3.3, 1.11);
+        targets[11] = new Targets("12", 0.7 + translation, 3.3, 0.81);
+        targets[12] = new Targets("13", 0.35 + translation, 3.85, 1.11);
+        targets[13] = new Targets("14", 0.7 + translation, 3.85, 0.81);
+        targets[14] = new Targets("15", 0.35 + translation, 4.4, 1.11);
+        targets[15] = new Targets("16", 0.7 + translation, 4.4, 0.81);
+        targets[16] = new Targets("17", 0.35 + translation, 5, 1.11);
+        targets[17] = new Targets("18", 0.7 + translation, 5, 0.81);
 
-                            // Get a CvSink. This will capture Mats from the camera
-                            CvSink cvSink = CameraServer.getVideo();
-                            // Set up a CvSource. This will send images back to the Dashboard
-                            CvSource outputStream = CameraServer.putVideo("Rectangle", 320, 240);
 
-                            // Mats are very memory expensive. Let's reuse this Mat.
-                            Mat mat = new Mat();
-
-                            // This cannot be 'true'. The program will never exit if it is. This
-                            // lets the robot stop this thread when restarting robot code or
-                            // deploying.
-                            while (!Thread.interrupted()) {
-                                // Tell the CvSink to grab a frame from the camera and put it
-                                // in the source mat.  If there is an error notify the output.
-                                if (cvSink.grabFrame(mat) == 0) {
-                                    // Send the output the error.
-                                    outputStream.notifyError(cvSink.getError());
-                                    // skip the rest of the current iteration
-                                    continue;
-                                }
-                                // Put a rectangle on the image
-                                //Imgproc.rectangle(
-                                        //mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
-                                // Give the output stream a new image to display
-                                outputStream.putFrame(mat);
-                            }
-                        });
-        m_visionThread.setDaemon(true);
-        m_visionThread.start();
-
-        targets[0] = new Targets("Test", 0, 0, 0);
-
+        Constants.balanceTuner = navX.getRoll();
     }
 
     /**
@@ -122,19 +110,30 @@ public class Robot extends TimedRobot
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        /*
        // double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
         if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
             elevator.setElevatorMotors(0);
         }
 
-         */
         arm.armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
-        SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
+        LemonLight LL = new LemonLight();
+        SmartDashboard.putNumber("Limelight Pose X", LL.getBotpose()[0]);
+        SmartDashboard.putNumber("Limelight Pose Y", LL.getBotpose()[1]);
+        SmartDashboard.putNumber("Limelight Pose Z", LL.getBotpose()[2]);
 
+        chooser.addOption("Aton", "Aton");
 
+        navXYaw = NavX.getInstance().getYaw();
+        if(LL.getBotpose()[0] != 0){
+            localLocation[0] = LL.getBotpose()[0];
+        }
+        if(LL.getBotpose()[1] != 0){
+            localLocation[1] = LL.getBotpose()[1];
+        }
+
+        SmartDashboard.putNumber("Local X", localLocation[0]);
+        SmartDashboard.putNumber("Local Y", localLocation[1]);
     }
 
 
@@ -151,29 +150,22 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-/*
-        autonomousCommand = robotContainer.getAutonomousCommand();
+        selectedAuto = chooser.getSelected();
+
+        autonomousCommand = robotContainer.getAutonomousCommand(selectedAuto);
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null)
         {
             autonomousCommand.schedule();
         }
-*/
-        Constants.balanceTuner = navX.getRoll();
     }
 
 
     /** This method is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-/*
-        if(Timer.getFPGATimestamp() >= 3){
-            DriveTrain.setRightMotors(-0.3);
-            DriveTrain.setLeftMotors(-0.3);
-        }
 
- */
     }
 
     @Override
@@ -187,8 +179,6 @@ public class Robot extends TimedRobot
         {
             autonomousCommand.cancel();
         }
-        Constants.balanceTuner = navX.getRoll();
-
     }
 
 
@@ -206,21 +196,16 @@ public class Robot extends TimedRobot
         if (turn > -0.12 && turn < 0.12)
             turn = 0;
 
+        if(speed > 0 || turn > 0)
+            driveTrain.updateXY();
         double left = speed - turn;
         double right = speed + turn;
-
-        if (Constants.elevEncoderValue < -10){
-            Constants.dtMultiplier = 0.25;
-        }
-        else {
-            Constants.dtMultiplier = 1;
-        }
 
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
 
-        DriveTrain.setLeftMotors(left*dtMultiplier);
-        DriveTrain.setRightMotors(right*dtMultiplier);
+        driveTrain.setLeftMotors(left*dtMultiplier);
+        driveTrain.setRightMotors(right*dtMultiplier);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[2];

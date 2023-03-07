@@ -10,7 +10,7 @@ import frc.robot.subsystems.NavX;
 
 public class auto1 extends CommandBase {
     private final Arm arm = Arm.getInstance();
-    private final DriveTrain driveTrain = new DriveTrain();
+    private final DriveTrain driveTrain = DriveTrain.getInstance();
     private final Elevator elevator = Elevator.getInstance();
     private final NavX navX = NavX.getInstance();
     //private final
