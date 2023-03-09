@@ -29,7 +29,6 @@ public class Claw extends SubsystemBase {
     public Claw() {
         //claw.set(DoubleSolenoid.Value.kForward);
         pneumaticHub.enableCompressorDigital();
-
     }
 
     public void closeClaw() {
@@ -39,4 +38,7 @@ public class Claw extends SubsystemBase {
     public void openClaw() {
         claw.set(DoubleSolenoid.Value.kForward);
     }
+
+    public boolean isClawClose(){return claw.isFwdSolenoidDisabled();}
+    public boolean isClawOpen(){return claw.isRevSolenoidDisabled();}
 }

@@ -1,16 +1,17 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Claw;
+import frc.robot.Constants;
+import frc.robot.subsystems.DriveTrain;
 
 
-public class clawOpenCommand extends CommandBase {
-    private final Claw claw = Claw.getInstance();
+public class increaseSpeedCommand extends CommandBase {
+    private final DriveTrain driveTrain = new DriveTrain();
 
-    public clawOpenCommand() {
+    public increaseSpeedCommand() {
         // each subsystem used by the command must be passed into the
         // addRequirements() method (which takes a vararg of Subsystem)
-        addRequirements(this.claw);
+        addRequirements(this.driveTrain);
     }
 
     @Override
@@ -20,17 +21,17 @@ public class clawOpenCommand extends CommandBase {
 
     @Override
     public void execute() {
-        claw.openClaw();
+        Constants.dtMultiplier = 0.96;
     }
 
     @Override
     public boolean isFinished() {
         // TODO: Make this return true when this Command no longer needs to run execute()
-        return claw.isClawOpen();
+        return false;
     }
 
     @Override
     public void end(boolean interrupted) {
-        claw.openClaw();
+        Constants.dtMultiplier = 0.86;
     }
 }

@@ -21,7 +21,7 @@ public class resetCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        Constants.elevEncoderValue = elevator.getEncoderValue()[2];
+        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
         Constants.armEncoderValue = arm.getEncoderValue();
     }
 

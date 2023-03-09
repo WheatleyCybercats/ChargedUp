@@ -6,6 +6,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
+import java.util.function.BooleanSupplier;
+
 
 public class highPresetCommand extends CommandBase {
     private final Arm arm = Arm.getInstance();
@@ -39,8 +41,8 @@ public class highPresetCommand extends CommandBase {
     public boolean isFinished() {
         double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
-        if(armEncoderValue <= Constants.preset.armHighPreset + 3){
-            if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 4.5) {
+        if(armEncoderValue <= Constants.preset.armHighPreset + 4){
+            if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
                 return true;
             }
         }
@@ -52,5 +54,6 @@ public class highPresetCommand extends CommandBase {
     public void end(boolean interrupted) {
         arm.setArmMotor(0);
         elevator.setElevatorMotors(0);
+        SmartDashboard.putString("highPreset Ended", "highPresetEnd");
     }
 }

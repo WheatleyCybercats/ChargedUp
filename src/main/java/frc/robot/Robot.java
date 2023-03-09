@@ -5,14 +5,7 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,20 +13,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Commands.*;
-import frc.robot.Commands.Presets.highPresetCommand;
-import frc.robot.Commands.Presets.resetCommand;
+import frc.robot.Commands.Autos.placeConeHighAuto;
 import frc.robot.subsystems.*;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
-import java.nio.file.Path;
-
-import static frc.robot.Constants.arm;
-import static frc.robot.Constants.dtMultiplier;
 
 
 /**
@@ -51,11 +33,11 @@ public class Robot extends TimedRobot
     private final Joystick DriverJoystick = new Joystick(0);
     private final Joystick OperatorJoystick = new Joystick(1);
     private final frc.robot.subsystems.DriveTrain DriveTrain = new DriveTrain();
-    private LemonLight lemonlight = new LemonLight();
-    private NavX navX = new NavX();
-    private seekingCommand SC = new seekingCommand(DriveTrain, lemonlight);
-    private Arm arm = Arm.getInstance();
-    private Elevator elevator = Elevator.getInstance();
+    private final LemonLight lemonlight = new LemonLight();
+    private final NavX navX = new NavX();
+    private final seekingCommand SC = new seekingCommand(DriveTrain, lemonlight);
+    private final Arm arm = Arm.getInstance();
+    private final Elevator elevator = Elevator.getInstance();
     Thread m_visionThread;
 
     private static final String defaultAuto = "default";
@@ -145,6 +127,9 @@ public class Robot extends TimedRobot
         chooser.addOption("Custom Auto", customAuto);
         SmartDashboard.putData("Auto Choices", chooser);
         SmartDashboard.putNumber("Elevator Encoder 2", elevator.getEncoderValue()[1]);
+
+        Constants.armEncoderValue = arm.getEncoderValue();
+        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
     }
 
 
@@ -161,21 +146,25 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-        /*
+        Constants.balanceTuner = navX.getRoll();
+
+        //autonomousCommand = new placeConeHighAuto();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
-        // schedule the autonomous command (example)
         if (autonomousCommand != null)
         {
             autonomousCommand.schedule();
         }
+
+        /*
+        autonomousCommand = robotContainer.getAutonomousCommand();
+
+        // schedule the autonomous command (example)
+
         selectedAuto = chooser.getSelected();
         SmartDashboard.putString("Selected Auto: ", selectedAuto);
-
-
-
          */
-        Constants.balanceTuner = navX.getRoll();
+
     }
 
 
@@ -186,10 +175,12 @@ public class Robot extends TimedRobot
 
         //Create a driveDistance command for the drivetrain. Then in robotcontainer, return a sequential command that drives a certain distance and do something. Also should be chained together
 
+        CommandScheduler.getInstance().run();
+
         SmartDashboard.putNumber("MATCH TIME", Timer.getMatchTime());
 
         /**WORKING AUTO**/
-
+/*
         //if(Timer.getMatchTime() >= 3){
         if (DriveTrain.getRightEncoderValue() > 100_000){
             SmartDashboard.putNumber("Right DT Encoder", DriveTrain.getRightEncoderValue());
@@ -203,6 +194,8 @@ public class Robot extends TimedRobot
         }else{
             DriveTrain.setLeftMotors(0);
         }
+
+ */
 
         /**WORKING AUTO END**/
 
@@ -256,23 +249,18 @@ public class Robot extends TimedRobot
         //SeekingCommand.calculateDistance();
         //balance.execute();
 
-        double speed = DriverJoystick.getRawAxis(1) * 0.75;
+
+
+        double speed = DriverJoystick.getRawAxis(1) * Constants.dtMultiplier;
         if (speed < 0.12 && speed > -0.12)
             speed = 0;
 
-        double turn = DriverJoystick.getRawAxis(4) * 0.45;
+        double turn = DriverJoystick.getRawAxis(4) * 0.43;
         if (turn > -0.12 && turn < 0.12)
             turn = 0;
 
         double left = speed - turn;
         double right = speed + turn;
-
-        if (Constants.elevEncoderValue < -15){
-            Constants.dtMultiplier = 0.25;
-        }
-        else {
-            Constants.dtMultiplier = 1;
-        }
 
         SmartDashboard.putNumber("RightMotorSpeed", right);
         SmartDashboard.putNumber("LeftMotorSpeed", left);
@@ -281,8 +269,6 @@ public class Robot extends TimedRobot
         DriveTrain.setRightMotors(right);
 
         //Update elevator in robot periodic
-        Constants.armEncoderValue = arm.getEncoderValue();
-        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
 
         double elevatorMovement = OperatorJoystick.getRawAxis(5);
         if(elevatorMovement > -0.05 && elevatorMovement < 0.05)
