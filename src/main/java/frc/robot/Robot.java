@@ -148,6 +148,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Local X", localLocation[0]);
         SmartDashboard.putNumber("Local Y", localLocation[1]);
         SmartDashboard.putNumber("Yaw", localLocation[2]);
+        SmartDashboard.putNumber("Estimated X", DriveTrain.getInstance().getLocation().getX());
+        SmartDashboard.putNumber("Estimated Y", DriveTrain.getInstance().getLocation().getY());
     }
 
 
