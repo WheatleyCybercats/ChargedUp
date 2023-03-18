@@ -40,17 +40,6 @@ public class DriveTrain extends SubsystemBase{
     public double getRightEncoderValue(){
         return rightLeader.getSelectedSensorPosition();
     }
-    public void setRightEncoderValue(int value){
-        rightLeader.setSelectedSensorPosition(value);
-    }
-    public void setLeftEncoderValue(int value){
-        leftLeader.setSelectedSensorPosition(value);
-    }
-    public double[] ticksToMeter(){
-        return new double[]{rightLeader.getSelectedSensorPosition()/43894, leftLeader.getSelectedSensorPosition()/43894};
-    }
-
-
     public DriveTrain(){
         leftFollower.set(ControlMode.Follower, leftLeader.getDeviceID());
         rightFollower.set(ControlMode.Follower, rightLeader.getDeviceID());

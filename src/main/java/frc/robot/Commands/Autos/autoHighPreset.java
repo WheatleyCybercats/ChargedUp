@@ -1,4 +1,4 @@
-package frc.robot.Commands.Presets;
+package frc.robot.Commands.Autos;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -6,14 +6,12 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
-import java.util.function.BooleanSupplier;
 
-
-public class highPresetCommand extends CommandBase {
+public class autoHighPreset extends CommandBase {
     private final Arm arm = Arm.getInstance();
     private final Elevator elevator = Elevator.getInstance();
 
-    public highPresetCommand() {
+    public autoHighPreset() {
         // each subsystem used by the command must be passed into the
         // addRequirements() method (which takes a vararg of Subsystem)
         addRequirements(this.arm, this.elevator);
@@ -35,17 +33,21 @@ public class highPresetCommand extends CommandBase {
         if (Constants.armEncoderValue > Constants.preset.armHighPreset + 2){
             arm.setArmMotor(-Constants.armSpeed);
         }
+
     }
 
     @Override
     public boolean isFinished() {
         double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
-        if(armEncoderValue <= Constants.preset.armHighPreset + 4){
-            if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
-                return true;
-            }
+
+        if (elevEncoderValue <= -38) {
+            return true;
         }
+        if (armEncoderValue <= Constants.preset.armHighPreset + 4) {
+            return true;
+        }
+
         // TODO: Make this return true when this Command no longer needs to run execute()
         return false;
     }

@@ -12,15 +12,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Commands.*;
-import frc.robot.Commands.Autos.autoHighPreset;
-import frc.robot.Commands.Autos.autoReset;
 import frc.robot.Commands.Autos.driveBackwardOverRamp;
 import frc.robot.Commands.Presets.*;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
 import frc.robot.subsystems.NavX;
-
-import java.sql.Driver;
 
 
 /**
@@ -38,7 +34,7 @@ public class RobotContainer {
     private final DriveTrain TrainDrive = new DriveTrain();
     private final NavX xNav = new NavX();
     private final seekingCommand SC = new seekingCommand(TrainDrive, new LemonLight());
-    private final balancingCommand BC = new balancingCommand();
+    private final balancingCommand BC = new balancingCommand(TrainDrive, xNav);
     /* button-activated commands that were originally bound to the driver controller during testing
     public final armOutCommand AO = new armOutCommand();
     public final armInCommand AI = new armInCommand();
@@ -54,9 +50,7 @@ public class RobotContainer {
     public final clawOpenCommand CO = new clawOpenCommand();
     public final armToFloorCommand FL = new armToFloorCommand();
     public final substationCommand SB = new substationCommand();
-    public final setColorCommand setPurple = new setColorCommand(Constants.colors.purple);
-    public final setColorCommand setYellow = new setColorCommand(Constants.colors.yellow);
-
+    public final driveBackwardOverRamp driveBack = new driveBackwardOverRamp();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -80,8 +74,6 @@ public class RobotContainer {
         int Y = 4;
         int leftTrig = 5;
         int rightTrig = 6;
-        int rightAxisButton = 10;
-        int leftAxisButton = 9;
 
         /** DRIVER CONTROLLER **/
         /*
@@ -125,14 +117,13 @@ public class RobotContainer {
         JoystickButton armToSubstation = new JoystickButton(OperatorJoystick, 7); // rightMiddle = 2
         armToSubstation.whenPressed(SB);
 
-        JoystickButton setLEDYellow = new JoystickButton(DriverJoystick, leftTrig);
-        setLEDYellow.whenPressed(setYellow);
-        JoystickButton setLEDPurple = new JoystickButton(DriverJoystick, rightTrig);
-        setLEDPurple.whenPressed(setPurple);
+        //JoystickButton seekButton = new JoystickButton(OperatorJoystick, B);
+        //seekButton.whileTrue(SC);
 
-        JoystickButton clawOpen = new JoystickButton(OperatorJoystick, rightTrig);//close
+
+        JoystickButton clawOpen = new JoystickButton(OperatorJoystick, leftTrig);//close
         clawOpen.whileTrue(CO);
-        JoystickButton closeClaw = new JoystickButton(OperatorJoystick, leftTrig);//open
+        JoystickButton closeClaw = new JoystickButton(OperatorJoystick, rightTrig);//open
         closeClaw.whileTrue(CC);
     }
 
@@ -142,12 +133,8 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        //return new SequentialCommandGroup(new highPresetCommand(),  CC.withTimeout(1));
-        //, CC.withTimeout(1).andThen(IN).andThen(driveBack.withTimeout(4)));
-
-        return new SequentialCommandGroup(new autoHighPreset(), CC.withTimeout(1).andThen(new autoReset()).andThen(new driveBackwardOverRamp()));
-        //return (new autoHighPresetCommand());
-        //return null;
+        return new SequentialCommandGroup(HP.withTimeout(5).andThen(CC.withTimeout(2)).andThen(IN.withTimeout(2.8)).andThen(driveBack.withTimeout(4)));
+    //return null;
     }
 }
 

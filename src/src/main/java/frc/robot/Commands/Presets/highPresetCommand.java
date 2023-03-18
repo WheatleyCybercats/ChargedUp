@@ -54,5 +54,6 @@ public class highPresetCommand extends CommandBase {
     public void end(boolean interrupted) {
         arm.setArmMotor(0);
         elevator.setElevatorMotors(0);
+        SmartDashboard.putString("highPreset Ended", "highPresetEnd");
     }
 }

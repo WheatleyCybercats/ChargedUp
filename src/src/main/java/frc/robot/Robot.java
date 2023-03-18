@@ -13,9 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Commands.*;
-import frc.robot.Commands.Autos.*;
+import frc.robot.Commands.Autos.placeConeHighAuto;
 import frc.robot.subsystems.*;
 
 
@@ -41,9 +40,8 @@ public class Robot extends TimedRobot
     private final Elevator elevator = Elevator.getInstance();
     Thread m_visionThread;
 
-    private static final String sideAuto1 = "sideAuto1";
-    private static final String midAuto1 = "midAuto1";
-    private static final String sideAuto2 = "sideAuto2";
+    private static final String defaultAuto = "default";
+    private static final String customAuto = "custom";
     private String selectedAuto;
     private final SendableChooser<String> chooser = new SendableChooser<>();
 
@@ -61,14 +59,6 @@ public class Robot extends TimedRobot
         // instantiate the command used for the autonomous period
 
         robotContainer = new RobotContainer();
-
-        /***********SENDABLE CHOOSER AUTOS***********/
-        chooser.setDefaultOption("SIDE | 1GP+mobility", sideAuto1);
-        chooser.addOption("SIDE | 2GP+mobility", sideAuto2);
-        chooser.addOption("MID | 1GP+balance", midAuto1);
-        SmartDashboard.putData("Auto Choices!", chooser);
-
-
 /*
         m_visionThread =
                 new Thread(
@@ -109,8 +99,6 @@ public class Robot extends TimedRobot
         m_visionThread.start();
 
  */
-
-
     }
     /**
      * This method is called every robot packet, no matter the mode. Use this for items like
@@ -124,8 +112,6 @@ public class Robot extends TimedRobot
 
         CommandScheduler.getInstance().run();
 
-        SmartDashboard.putNumber("Pitch", NavX.getInstance().getPitch());
-        SmartDashboard.putNumber("Roll", NavX.getInstance().getRoll());
         /*
        // double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
@@ -137,14 +123,13 @@ public class Robot extends TimedRobot
         //SmartDashboard.putNumber("Odometry X", DriveTrain.getPose().getX());
         //SmartDashboard.putNumber("Odometry Y", DriveTrain.getPose().getY());
 
-
+        chooser.setDefaultOption("Default Auto", defaultAuto);
+        chooser.addOption("Custom Auto", customAuto);
+        SmartDashboard.putData("Auto Choices", chooser);
+        SmartDashboard.putNumber("Elevator Encoder 2", elevator.getEncoderValue()[1]);
 
         Constants.armEncoderValue = arm.getEncoderValue();
         Constants.elevEncoderValue = elevator.getEncoderValue()[0];
-
-        SmartDashboard.putNumber("Left motor encoder", DriveTrain.getLeftEncoderValue());
-        SmartDashboard.putNumber("Right motor encoder", DriveTrain.getRightEncoderValue());
-
     }
 
 
@@ -161,54 +146,25 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-        DriveTrain.setLeftEncoderValue(0);
-        DriveTrain.setRightEncoderValue(0);
-
         Constants.balanceTuner = navX.getRoll();
 
-        Constants.armEncoderValue = 0;
-        Constants.elevEncoderValue = 0;
-
-        String selectedAuto = chooser.getSelected();
-        SmartDashboard.putString("Selected Auto: ", selectedAuto);
-
-        //clawOpenCommand CO = new clawOpenCommand();
-
-        switch (selectedAuto) {
-            case sideAuto1:
-                    autonomousCommand = new SequentialCommandGroup(new autoHighPreset(), new clawOpenCommand().withTimeout(.5).
-                        andThen(new autoReset()).andThen(new driveMetersCommand(4)));
-                break;
-            case sideAuto2:
-                autonomousCommand = new SequentialCommandGroup(new autoHighPreset(), new clawOpenCommand().withTimeout(.5),
-                        new autoReset(), new driveMetersCommand(6), new turnDegrees(180), new autoArmToFloor().withTimeout(1.3),
-                        new clawOpenCommand().withTimeout(.5), new autoReset(), new driveMetersCommand(0.1), new clawCloseCommand().withTimeout(.5),
-                        new turnDegrees(180), new driveMetersCommand(6), new autoHighPreset(), new clawOpenCommand().withTimeout(.5));
-            case midAuto1:
-            default:
-                autonomousCommand = new SequentialCommandGroup(new autoHighPreset(), new clawOpenCommand().withTimeout(.5),
-                        new autoReset(), new driveBackwardOverRamp(), new driveForwardOverRamp(), new balancingCommand());
-                /******drive forward auto broken - negative amounts**/
-                break;
-
-
-                /** with .andThen()
-                 *
-                 * autonomousCommand = new SequentialCommandGroup(new autoHighPreset(), new clawOpenCommand().withTimeout(.5).
-                 *                         andThen(new autoReset()).andThen(new driveBackwardMobility()).andThen(new turnDegrees()).andThen(new autoArmToFloor().withTimeout(1.3)).
-                 *                         andThen(new clawOpenCommand().withTimeout(.5)).andThen(new autoInchForward()).andThen(new clawCloseCommand().withTimeout(.5)).
-                 *                         andThen(new turnDegrees()).andThen(new driveForwardToComm()).andThen(new autoHighPreset(), new clawOpenCommand().withTimeout(.5)));
-                 *
-                 */
-        }
-
         //autonomousCommand = new placeConeHighAuto();
-        /**working auto before sendable chooser*/ // ----> autonomousCommand = robotContainer.getAutonomousCommand();
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (autonomousCommand != null)
         {
             autonomousCommand.schedule();
         }
+
+        /*
+        autonomousCommand = robotContainer.getAutonomousCommand();
+
+        // schedule the autonomous command (example)
+
+        selectedAuto = chooser.getSelected();
+        SmartDashboard.putString("Selected Auto: ", selectedAuto);
+         */
+
     }
 
 
@@ -223,8 +179,49 @@ public class Robot extends TimedRobot
 
         SmartDashboard.putNumber("MATCH TIME", Timer.getMatchTime());
 
-        Constants.armEncoderValue = arm.getEncoderValue();
-        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
+        /**WORKING AUTO**/
+/*
+        //if(Timer.getMatchTime() >= 3){
+        if (DriveTrain.getRightEncoderValue() > 100_000){
+            SmartDashboard.putNumber("Right DT Encoder", DriveTrain.getRightEncoderValue());
+            DriveTrain.setRightMotors(0.3);
+        }else{
+            DriveTrain.setRightMotors(0);
+        }
+        if(DriveTrain.getLeftEncoderValue() > 100_000){
+            SmartDashboard.putNumber("Left DT Encoder", DriveTrain.getLeftEncoderValue());
+            DriveTrain.setLeftMotors(0.3);
+        }else{
+            DriveTrain.setLeftMotors(0);
+        }
+
+ */
+
+        /**WORKING AUTO END**/
+
+        /*
+        switch (selectedAuto) {
+            case customAuto:
+                // custom auto code here
+                // place cube and move back past mobility line
+                autonomousCommand.schedule();
+                if(Timer.getFPGATimestamp() >= 4){
+                    DriveTrain.setRightMotors(-0.2);
+                    DriveTrain.setLeftMotors(-0.2);
+                }
+                break;
+            case defaultAuto:
+            default:
+                // default auto code here
+                if(Timer.getFPGATimestamp() <= 3){
+                    DriveTrain.setRightMotors(0.2);
+                    DriveTrain.setLeftMotors(0.2);
+                }
+                break;
+        }
+
+         */
+
 
     }
 
@@ -253,8 +250,6 @@ public class Robot extends TimedRobot
         //balance.execute();
 
 
-        Constants.armEncoderValue = arm.getEncoderValue();
-        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
 
         double speed = DriverJoystick.getRawAxis(1) * Constants.dtMultiplier;
         if (speed < 0.12 && speed > -0.12)

@@ -24,14 +24,14 @@ public final class Constants {
 
     //make a class for Arm
     public static final int armMotor = 5;
-    public static final double armSpeed = 0.42;//0.4
+    public static final double armSpeed = 0.2;//0.4
 
     public static double dtMultiplier = 1;
 
 
     public static final class elevator{
         public static double elevMultiplier = 1;
-        public static final double elevatorSpeed = 0.563;//0.55  /**optimal ratio of arm to elevator speed is 1:1.34**/
+        public static final double elevatorSpeed = 0.2;//0.55
     }
 
     public static double armEncoderValue = arm.getEncoderValue();
@@ -40,7 +40,7 @@ public final class Constants {
     public static double elevBottomConfig = -1;
     public static final class preset{
         public static final double armHighPreset = -35; // relative encoder is -35 at optimal point
-        public static final double elevatorHighPreset = -45.5; // relative encoder is -45 at optimal point
+        public static final double elevatorHighPreset = -48.5; // relative encoder is -45 at optimal point
         public static final double armMidPreset = -35;
         public static final double elevatorFloorPreset = -8;
         public static final double armFloorPreset = -57;
@@ -65,10 +65,5 @@ public final class Constants {
         public static final double kvVoltSecondsPerMeter = 0;
         public static final double ksVolts = 0;
         public static final double kaVoltSecondsSquaredPerMeter = 0;
-    }
-
-    public static final class colors{
-        public static final int[] purple = {50, 0, 50};
-        public static final int[] yellow = {245,245,0};
     }
 }

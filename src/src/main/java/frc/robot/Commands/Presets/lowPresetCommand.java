@@ -6,14 +6,12 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
-import java.util.function.BooleanSupplier;
 
-
-public class highPresetCommand extends CommandBase {
+public class lowPresetCommand extends CommandBase {
     private final Arm arm = Arm.getInstance();
     private final Elevator elevator = Elevator.getInstance();
 
-    public highPresetCommand() {
+    public lowPresetCommand() {
         // each subsystem used by the command must be passed into the
         // addRequirements() method (which takes a vararg of Subsystem)
         addRequirements(this.arm, this.elevator);
@@ -21,31 +19,39 @@ public class highPresetCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        //Constants.elevEncoderValue = 0;
+        /*
+        elevator.encoder1.setPosition(0);
+        elevator.encoder2.setPosition(0);
+        arm.armEncoder.setPosition(0);
+
+         */
     }
 
     @Override
     public void execute() {
-        SmartDashboard.putNumber("HP elevator encoder", Constants.elevEncoderValue);
-        if(Constants.elevEncoderValue > Constants.preset.elevatorHighPreset + 3.5){
+        SmartDashboard.putNumber("HP IN elevator encoder", Constants.elevEncoderValue);
+        if(Constants.elevEncoderValue > Constants.lowPreset.elevatorLowPreset + 2){
             elevator.setElevatorMotors(-Constants.elevator.elevatorSpeed);
         }
 
-        SmartDashboard.putNumber("HP arm encoder", Constants.armEncoderValue);
-        if (Constants.armEncoderValue > Constants.preset.armHighPreset + 2){
+        SmartDashboard.putNumber("HP IN arm encoder", Constants.armEncoderValue);
+        if (Constants.armEncoderValue > Constants.lowPreset.armLowPreset + 2){
             arm.setArmMotor(-Constants.armSpeed);
         }
+
     }
 
     @Override
     public boolean isFinished() {
         double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
-        if(armEncoderValue <= Constants.preset.armHighPreset + 4){
-            if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
+        if(armEncoderValue <= Constants.lowPreset.armLowPreset + 3) {
+            if (elevEncoderValue <= Constants.lowPreset.elevatorLowPreset + 3) {
                 return true;
             }
         }
+
+
         // TODO: Make this return true when this Command no longer needs to run execute()
         return false;
     }

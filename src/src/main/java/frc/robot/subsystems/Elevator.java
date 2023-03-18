@@ -45,7 +45,7 @@ public class Elevator extends SubsystemBase {
     public void setElevatorMotors(double elevatorSpeed) {
         elevatorMotor1.set(elevatorSpeed);
         elevatorMotor2.set(elevatorSpeed);
-        SmartDashboard.putNumber("Elevator Ave Encoder", getEncoderValue()[0]);
+        SmartDashboard.putNumber("Elevator Encoder", getEncoderValue()[2]);
     }
     //TODO: Refractor the code so that all the places take the value from Constants so that the value stays the same
     public double[] getEncoderValue(){

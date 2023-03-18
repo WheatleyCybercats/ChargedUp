@@ -1,4 +1,4 @@
-package frc.robot.Commands.Presets;
+package frc.robot.Commands.Autos;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -6,14 +6,12 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 
-import java.util.function.BooleanSupplier;
 
-
-public class highPresetCommand extends CommandBase {
+public class autoReset extends CommandBase {
     private final Arm arm = Arm.getInstance();
     private final Elevator elevator = Elevator.getInstance();
 
-    public highPresetCommand() {
+    public autoReset() {
         // each subsystem used by the command must be passed into the
         // addRequirements() method (which takes a vararg of Subsystem)
         addRequirements(this.arm, this.elevator);
@@ -21,30 +19,35 @@ public class highPresetCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        //Constants.elevEncoderValue = 0;
+        Constants.elevEncoderValue = elevator.getEncoderValue()[0];
+        Constants.armEncoderValue = arm.getEncoderValue();
     }
 
     @Override
     public void execute() {
-        SmartDashboard.putNumber("HP elevator encoder", Constants.elevEncoderValue);
-        if(Constants.elevEncoderValue > Constants.preset.elevatorHighPreset + 3.5){
-            elevator.setElevatorMotors(-Constants.elevator.elevatorSpeed);
+        SmartDashboard.putNumber("reset elevator encoder", Constants.elevEncoderValue);
+        if(Constants.elevEncoderValue < Constants.elevBottomConfig){
+            elevator.setElevatorMotors(Constants.elevator.elevatorSpeed);
         }
 
-        SmartDashboard.putNumber("HP arm encoder", Constants.armEncoderValue);
-        if (Constants.armEncoderValue > Constants.preset.armHighPreset + 2){
-            arm.setArmMotor(-Constants.armSpeed);
+        SmartDashboard.putNumber("reset arm encoder", Constants.armEncoderValue);
+        if (Constants.armEncoderValue < Constants.armBottomConfig){
+            arm.setArmMotor(Constants.armSpeed);
         }
+
+        //drivetrain.arcadeDrive(-.15, 0);
+        //drivetrain.arcadeDrive(-.15, 0);
     }
 
     @Override
     public boolean isFinished() {
         double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
-        if(armEncoderValue <= Constants.preset.armHighPreset + 4){
-            if (elevEncoderValue <= Constants.preset.elevatorHighPreset + 3) {
-                return true;
-            }
+        if(armEncoderValue >= -4) {
+            return true;
+        }
+        if (elevEncoderValue >= -3) {
+            return true;
         }
         // TODO: Make this return true when this Command no longer needs to run execute()
         return false;
@@ -54,5 +57,7 @@ public class highPresetCommand extends CommandBase {
     public void end(boolean interrupted) {
         arm.setArmMotor(0);
         elevator.setElevatorMotors(0);
+        //drivetrain.arcadeDrive(0,0);
+        //drivetrain.arcadeDrive(0,0);
     }
 }

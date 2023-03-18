@@ -10,10 +10,12 @@ import static frc.robot.Constants.balanceTuner;
 
 
 public class balancingCommand extends CommandBase {
-    private final DriveTrain driveTrain = DriveTrain.getInstance();
-    private final NavX navX = NavX.getInstance();
+    private final DriveTrain driveTrain;
+    private final NavX navX;
 
-    public balancingCommand() {
+    public balancingCommand(DriveTrain driveTrain, NavX navX) {
+        this.driveTrain = driveTrain;
+        this.navX = navX;
         // each subsystem used by the command must be passed into the
         // addRequirements() method (which takes a vararg of Subsystem)
         addRequirements(this.driveTrain, this.navX);
@@ -26,27 +28,27 @@ public class balancingCommand extends CommandBase {
 
     @Override
     public void execute() {
-        double Pitch = NavX.getInstance().getPitch()-balanceTuner;
-
+        double roll = NavX.getInstance().getRoll()-balanceTuner;
+        SmartDashboard.putNumber("Pitch", NavX.getInstance().getPitch());
+        SmartDashboard.putNumber("Roll", roll);
         SmartDashboard.putNumber("BalanceTuner", balanceTuner);
-        if (Pitch > 0.5){
-            driveTrain.setRightMotors(-Math.pow(Pitch, 0.35)*Navmultiplier);
-            driveTrain.setLeftMotors(-Math.pow(Pitch, 0.35)*Navmultiplier);
-        } else if (Pitch < - 0.5){
-            driveTrain.setRightMotors(Math.pow(Math.abs(Pitch), 0.35)*Navmultiplier);
-            driveTrain.setLeftMotors(Math.pow(Math.abs(Pitch), 0.35)*Navmultiplier);
+        if (roll > 0.5){
+            driveTrain.setRightMotors(-Math.pow(roll, 0.5)*Navmultiplier);
+            driveTrain.setLeftMotors(-Math.pow(roll, 0.5)*Navmultiplier);
+        } else if (roll < - 0.5){
+            driveTrain.setRightMotors(Math.pow(Math.abs(roll), 0.5)*Navmultiplier);
+            driveTrain.setLeftMotors(Math.pow(Math.abs(roll), 0.5)*Navmultiplier);
         }
     }
 
     @Override
     public boolean isFinished() {
-        //return NavX.getInstance().getPitch() < 0.3 || NavX.getInstance().getPitch() > -0.3;
+        // TODO: Make this return true when this Command no longer needs to run execute()
         return false;
     }
 
     @Override
     public void end(boolean interrupted) {
-        driveTrain.setRightMotors(0);
-        driveTrain.setLeftMotors(0);
+
     }
 }
