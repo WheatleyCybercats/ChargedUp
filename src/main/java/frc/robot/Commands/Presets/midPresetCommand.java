@@ -1,5 +1,6 @@
 package frc.robot.Commands.Presets;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -29,9 +30,11 @@ public class midPresetCommand extends CommandBase {
 
     @Override
     public void execute() {
+        //PIDController p = new PIDController(0.5, 1, 0);
         SmartDashboard.putNumber("HP IN arm encoder", Constants.armEncoderValue);
         if (Constants.armEncoderValue > Constants.preset.armMidPreset + 2){
             arm.setArmMotor(-Constants.armSpeed);
+            //arm.setArmMotor(p.calculate(arm.getEncoderValue(), -Constants.preset.armMidPreset));
         }
 
     }

@@ -49,7 +49,9 @@ public class Elevator extends SubsystemBase {
     }
     //TODO: Refractor the code so that all the places take the value from Constants so that the value stays the same
     public double[] getEncoderValue(){
-        double[] encoderValues = {encoder1.getPosition(), encoder2.getPosition(), (encoder1.getPosition() + encoder2.getPosition())/2};
+        double[] encoderValues = {encoder1.getPosition(), encoder2.getPosition(), encoder2.getPosition()
+                //+ encoder2.getPosition())/2
+        };
         return encoderValues;
     }
 }

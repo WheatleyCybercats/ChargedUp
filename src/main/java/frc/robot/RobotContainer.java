@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Commands.*;
+import frc.robot.Commands.Autos.driveBackwardOverRamp;
 import frc.robot.Commands.Presets.*;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.LemonLight;
@@ -40,6 +42,7 @@ public class RobotContainer {
     public final elevatorOutCommand EO = new elevatorOutCommand();
     public final elevatorInCommand EI = new elevatorInCommand();
      */
+    public final increaseSpeedCommand IS = new increaseSpeedCommand();
     public final highPresetCommand HP = new highPresetCommand();
     public final midPresetCommand MP = new midPresetCommand();
     public final resetCommand IN = new resetCommand();
@@ -48,6 +51,7 @@ public class RobotContainer {
     public final clawOpenCommand CO = new clawOpenCommand();
     public final armToFloorCommand FL = new armToFloorCommand();
     public final substationCommand SB = new substationCommand();
+    public final driveBackwardOverRamp driveBack = new driveBackwardOverRamp();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -83,9 +87,10 @@ public class RobotContainer {
         substation.whenPressed(SB);
 
          */
-
         JoystickButton balanceButton = new JoystickButton(DriverJoystick, B); // 2 = B
         balanceButton.whileTrue(BC);
+        JoystickButton turboButton = new JoystickButton(DriverJoystick, A);
+        turboButton.whileHeld(IS);
 
         /* button-activated commands that were originally bound to the driver controller during testing
         JoystickButton armOut = new JoystickButton(OperatorJoystick, Y; // 4 = Y
@@ -112,6 +117,7 @@ public class RobotContainer {
         unlockReset.whenPressed(UN);
         JoystickButton armToSubstation = new JoystickButton(OperatorJoystick, 7); // rightMiddle = 2
         armToSubstation.whenPressed(SB);
+
         //JoystickButton seekButton = new JoystickButton(OperatorJoystick, B);
         //seekButton.whileTrue(SC);
 
@@ -120,6 +126,14 @@ public class RobotContainer {
         clawOpen.whileTrue(CO);
         JoystickButton closeClaw = new JoystickButton(OperatorJoystick, rightTrig);//open
         closeClaw.whileTrue(CC);
+
+        /*DigitalInput button = new DigitalInput(0);
+        if (button.get()){
+            CC;
+        }
+
+         */
+
     }
 
     /**
@@ -128,66 +142,8 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        /*
-        // Create a voltage constraint to ensure we don't accelerate too fast
-        var autoVoltageConstraint =
-                new DifferentialDriveVoltageConstraint(
-                        new SimpleMotorFeedforward(
-                                Constants.DriveConstants.ksVolts,
-                                Constants.DriveConstants.kvVoltSecondsPerMeter,
-                                Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
-                        Constants.DriveConstants.kDriveKinematics,
-                        10);
-
-        // Create config for trajectory
-        TrajectoryConfig config =
-                new TrajectoryConfig(
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                        // Add kinematics to ensure max speed is actually obeyed
-                        .setKinematics(Constants.DriveConstants.kDriveKinematics)
-                        // Apply the voltage constraint
-                        .addConstraint(autoVoltageConstraint);
-
-        // An example trajectory to follow.  All units in meters.
-        Trajectory exampleTrajectory =
-                TrajectoryGenerator.generateTrajectory(
-                        // Start at the origin facing the +X direction
-                        new Pose2d(0, 0, new Rotation2d(0)),
-                        // Pass through these two interior waypoints, making an 's' curve path
-                        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-                        // End 3 meters straight ahead of where we started, facing forward
-                        new Pose2d(3, 0, new Rotation2d(0)),
-                        // Pass config
-                        config);
-
-        RamseteCommand ramseteCommand =
-                new RamseteCommand(
-                        exampleTrajectory,
-                        TrainDrive::getPose,
-                        new RamseteController(Constants.AutoConstants.kRamseteB, Constants.AutoConstants.kRamseteZeta),
-                        new SimpleMotorFeedforward(
-                                Constants.DriveConstants.ksVolts,
-                                Constants.DriveConstants.kvVoltSecondsPerMeter,
-                                Constants.DriveConstants.kaVoltSecondsSquaredPerMeter),
-                        Constants.DriveConstants.kDriveKinematics,
-                        TrainDrive::getWheelSpeeds,
-                        new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
-                        new PIDController(Constants.DriveConstants.kPDriveVel, 0, 0),
-                        // RamseteCommand passes volts to the callback
-                        TrainDrive::tankDriveVolts,
-                        TrainDrive);
-
-        // Reset odometry to the starting pose of the trajectory.
-        TrainDrive.resetOdometry(exampleTrajectory.getInitialPose());
-
-        // Run path following command, then stop at the end.
-        return ramseteCommand.andThen(() -> TrainDrive.tankDriveVolts(0, 0));
-    }
-
-         */
-        //return new SequentialCommandGroup(new highPresetCommand().withTimeout(3), new clawOpenCommand().withTimeout(1.5), new resetCommand().withTimeout(3));
-    return null;
+        return new SequentialCommandGroup(HP.withTimeout(5).andThen(CC.withTimeout(2)).andThen(IN.withTimeout(2.8)).andThen(driveBack.withTimeout(4)));
+    //return null;
     }
 }
 

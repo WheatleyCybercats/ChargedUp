@@ -13,6 +13,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class DriveTrain extends SubsystemBase{
+
+    private final static DriveTrain INSTANCE = new DriveTrain();
+
+    @SuppressWarnings("WeakerAccess")
+    public static DriveTrain getInstance() {
+        return INSTANCE;
+    }
+
     private final WPI_TalonFX leftLeader = new WPI_TalonFX(1);
     private final WPI_TalonFX leftFollower = new WPI_TalonFX(2);
     private final WPI_TalonFX leftFollower2 = new WPI_TalonFX(3);

@@ -30,12 +30,14 @@ public class lowPresetCommand extends CommandBase {
     @Override
     public void execute() {
         SmartDashboard.putNumber("HP IN elevator encoder", Constants.elevEncoderValue);
-        if(Constants.elevEncoderValue > Constants.lowPreset.elevatorLowPreset + 2){
+       /* if(Constants.elevEncoderValue > Constants.preset.elevatorLowPreset + 2){
             elevator.setElevatorMotors(-Constants.elevator.elevatorSpeed);
         }
 
+        */
+
         SmartDashboard.putNumber("HP IN arm encoder", Constants.armEncoderValue);
-        if (Constants.armEncoderValue > Constants.lowPreset.armLowPreset + 2){
+        if (Constants.armEncoderValue > Constants.preset.armMidPreset + 2){
             arm.setArmMotor(-Constants.armSpeed);
         }
 
@@ -45,10 +47,10 @@ public class lowPresetCommand extends CommandBase {
     public boolean isFinished() {
         double armEncoderValue = Constants.armEncoderValue;
         double elevEncoderValue = Constants.elevEncoderValue;
-        if(armEncoderValue <= Constants.lowPreset.armLowPreset + 3) {
-            if (elevEncoderValue <= Constants.lowPreset.elevatorLowPreset + 3) {
+        if(armEncoderValue <= Constants.preset.armMidPreset + 3) {
+            //if (elevEncoderValue <= Constants.preset.elevatorLowPreset + 3) {
                 return true;
-            }
+            //}
         }
 
 
