@@ -5,7 +5,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -34,7 +33,7 @@ public class RobotContainer {
     private final Joystick OperatorJoystick = new Joystick(1);
     private final DriveTrain TrainDrive = new DriveTrain();
     private final NavX xNav = new NavX();
-    private final seekingCommand SC = new seekingCommand(TrainDrive, new LemonLight());
+    private final autoCubeCommand SC = new autoCubeCommand(TrainDrive, new LemonLight());
     private final balancingCommand BC = new balancingCommand(TrainDrive, xNav);
     /* button-activated commands that were originally bound to the driver controller during testing
     public final armOutCommand AO = new armOutCommand();

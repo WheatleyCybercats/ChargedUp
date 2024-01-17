@@ -21,7 +21,7 @@ public class increaseSpeedCommand extends CommandBase {
 
     @Override
     public void execute() {
-        Constants.dtMultiplier = 0.96;
+        Constants.speedMultiplier = 0.96;
     }
 
     @Override
@@ -32,6 +32,6 @@ public class increaseSpeedCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        Constants.dtMultiplier = 0.86;
+        Constants.speedMultiplier = 0.86;
     }
 }

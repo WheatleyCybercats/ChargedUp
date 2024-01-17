@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Commands.*;
-import frc.robot.Commands.Autos.placeConeHighAuto;
 import frc.robot.subsystems.*;
 
 import static frc.robot.Constants.buttonStatus;
@@ -38,7 +37,7 @@ public class Robot extends TimedRobot
     private final frc.robot.subsystems.DriveTrain DriveTrain = new DriveTrain();
     private final LemonLight lemonlight = new LemonLight();
     private final NavX navX = new NavX();
-    private final seekingCommand SC = new seekingCommand(DriveTrain, lemonlight);
+    private final autoCubeCommand SC = new autoCubeCommand(DriveTrain, lemonlight);
     private final Arm arm = Arm.getInstance();
     private final Elevator elevator = Elevator.getInstance();
     Thread m_visionThread;
@@ -265,13 +264,11 @@ public class Robot extends TimedRobot
             //when buttonStatus == false, button is pressed
         }
 
-
-
-        double speed = DriverJoystick.getRawAxis(1) * Constants.dtMultiplier;
+        double speed = DriverJoystick.getRawAxis(1) * Constants.speedMultiplier;
         if (speed < 0.12 && speed > -0.12)
             speed = 0;
 
-        double turn = DriverJoystick.getRawAxis(4) * 0.43;
+        double turn = DriverJoystick.getRawAxis(4) * Constants.turnMultiplier;
         if (turn > -0.12 && turn < 0.12)
             turn = 0;
 

@@ -25,8 +25,10 @@ public final class Constants {
     //make a class for Arm
     public static final int armMotor = 5;
     public static final double armSpeed = 0.4;//0.4
+    public static final double armMultiplier = 1;
 
-    public static double dtMultiplier = 1;
+    public static double speedMultiplier = 1;
+    public static double turnMultiplier = 0.43;
 
     public static boolean buttonStatus = false;
 
